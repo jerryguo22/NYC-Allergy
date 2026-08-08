@@ -1,3 +1,4 @@
+<meta charset="UTF-8">
 <title>Can a Green City Really Make Children Healthier?</title>
 <style>
 :root{
@@ -13,6 +14,7 @@
   --accentSoft:rgba(63,107,74,0.10);
   --pollenSoft:rgba(201,122,43,0.12);
   --claySoft:rgba(168,64,42,0.12);
+  --slate:#5f6f66;
 }
 :root[data-theme="dark"]{
   --paper:#141b16;
@@ -27,6 +29,7 @@
   --accentSoft:rgba(123,171,132,0.14);
   --pollenSoft:rgba(226,167,101,0.14);
   --claySoft:rgba(224,136,113,0.14);
+  --slate:#9fb0a6;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
@@ -42,6 +45,7 @@
     --accentSoft:rgba(123,171,132,0.14);
     --pollenSoft:rgba(226,167,101,0.14);
     --claySoft:rgba(224,136,113,0.14);
+    --slate:#9fb0a6;
   }
 }
 
@@ -242,6 +246,19 @@ th{font-size:11.5px; text-transform:uppercase; letter-spacing:0.05em; opacity:0.
 .leaflet-container{ font-family:inherit; }
 .tract-tooltip{font-size:12.5px; line-height:1.5;}
 .tract-tooltip b{color:var(--clay);}
+
+.chart-tooltip{
+  position:absolute; pointer-events:none; z-index:5;
+  opacity:0; transition:opacity .1s ease;
+  transform:translate(-50%,-100%);
+  background:var(--card); border:1px solid var(--border); border-radius:8px;
+  padding:7px 11px; font-size:12px; line-height:1.5; white-space:nowrap;
+  box-shadow:0 4px 14px rgba(0,0,0,0.14);
+}
+.chart-tooltip.show{opacity:1;}
+.chart-tooltip .ct-title{font-weight:700; display:flex; align-items:center; gap:6px;}
+.chart-tooltip .ct-dot{width:8px; height:8px; border-radius:50%; flex:none;}
+.chart-tooltip .ct-row{opacity:0.7; font-size:11.5px;}
 </style>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
 
@@ -504,6 +521,23 @@ th{font-size:11.5px; text-transform:uppercase; letter-spacing:0.05em; opacity:0.
     <div style="display:flex; justify-content:space-between; font-size:11px; opacity:0.55; text-transform:uppercase; letter-spacing:0.06em; padding:0 4px;">
       <span>← Low ATPI</span><span>High ATPI →</span>
     </div>
+  </div>
+
+  <div class="section">
+    <h3>Every tract, plotted</h3>
+    <div class="card">
+      <div class="map-shell">
+        <svg id="quad-scatter" viewBox="0 0 480 320" style="width:100%; height:auto; display:block;" role="img" aria-label="Scatter plot of census tracts by ATPI percentile and child-share percentile, colored by quadrant"></svg>
+        <div class="chart-tooltip" id="quad-scatter-tip"></div>
+      </div>
+      <div class="map-legend-row" style="padding:10px 0 0;">
+        <span class="lg-item"><span class="lg-dot" style="background:var(--clay);"></span>High ATPI · High child share</span>
+        <span class="lg-item"><span class="lg-dot" style="background:var(--pollen);"></span>High ATPI · Low child share</span>
+        <span class="lg-item"><span class="lg-dot" style="background:var(--moss);"></span>Low ATPI · High child share</span>
+        <span class="lg-item"><span class="lg-dot" style="background:var(--slate);"></span>Low ATPI · Low child share</span>
+      </div>
+    </div>
+    <p class="map-caption">Each point is an illustrative census tract, positioned to match this study's reported per-quadrant tract counts (556–565 each, see matrix above) and citywide median split. An illustrative synthetic distribution, not a live per-tract dataset — see the choropleth on the ATPI Map tab for real tract values.</p>
   </div>
 
   <div class="section">
@@ -832,6 +866,119 @@ function mulberry32(a){
   lblY.setAttribute('fill', ink);
   lblY.setAttribute('transform','rotate(-90)');
   lblY.textContent = 'ATPI →';
+  svg.appendChild(lblY);
+})();
+
+// seeded quadrant scatter (Four Quadrants tab)
+(function(){
+  var svg = document.getElementById('quad-scatter');
+  if(!svg) return;
+  var rand = mulberry32(7);
+  var pad = 44, W = 480, H = 320;
+  function sx(v){ return pad + (v/100) * (W-2*pad); }
+  function sy(v){ return H-pad - (v/100) * (H-2*pad); }
+  function centerBiased(min, max){ return min + (rand()+rand())/2 * (max-min); }
+
+  var css = getComputedStyle(document.documentElement);
+  function cvar(name, fallback){ var v = css.getPropertyValue(name).trim(); return v || fallback; }
+  var ink = cvar('--ink', '#1e2a22');
+  var border = cvar('--border', 'rgba(0,0,0,.15)');
+
+  var quadrants = [
+    { key:'lh', xTint:[0,50],  yTint:[50,100], xPts:[2,48],  yPts:[52,98], count:565, tint:'--accentSoft', dot:'--moss',  label:'Low ATPI · High child share' },
+    { key:'hh', xTint:[50,100],yTint:[50,100], xPts:[52,98], yPts:[52,98], count:556, tint:'--claySoft',   dot:'--clay',  label:'High ATPI · High child share' },
+    { key:'ll', xTint:[0,50],  yTint:[0,50],   xPts:[2,48],  yPts:[2,48],  count:556, tint:'--mist',       dot:'--slate', label:'Low ATPI · Low child share' },
+    { key:'hl', xTint:[50,100],yTint:[0,50],   xPts:[52,98], yPts:[2,48],  count:565, tint:'--pollenSoft', dot:'--pollen',label:'High ATPI · Low child share' }
+  ];
+
+  var svgns = 'http://www.w3.org/2000/svg';
+
+  var wrap = svg.parentElement;
+  var tip = document.getElementById('quad-scatter-tip');
+  function showTip(evt, q, xVal, yVal){
+    var wrapRect = wrap.getBoundingClientRect();
+    tip.innerHTML =
+      '<div class="ct-title"><span class="ct-dot" style="background:' + cvar(q.dot,'#888') + ';"></span>' + q.label + '</div>' +
+      '<div class="ct-row">ATPI percentile: <b>' + xVal + '</b></div>' +
+      '<div class="ct-row">Child share percentile: <b>' + yVal + '</b></div>' +
+      '<div class="ct-row" style="opacity:0.55;">Illustrative tract</div>';
+    tip.style.left = (evt.clientX - wrapRect.left) + 'px';
+    tip.style.top = (evt.clientY - wrapRect.top - 10) + 'px';
+    tip.classList.add('show');
+  }
+  function hideTip(){ tip.classList.remove('show'); }
+
+  // quadrant background tints
+  quadrants.forEach(function(q){
+    var rect = document.createElementNS(svgns,'rect');
+    rect.setAttribute('x', sx(q.xTint[0]));
+    rect.setAttribute('y', sy(q.yTint[1]));
+    rect.setAttribute('width', sx(q.xTint[1]) - sx(q.xTint[0]));
+    rect.setAttribute('height', sy(q.yTint[0]) - sy(q.yTint[1]));
+    rect.setAttribute('fill', cvar(q.tint, '#eee'));
+    svg.appendChild(rect);
+  });
+
+  // frame + median gridlines
+  var frame = document.createElementNS(svgns,'rect');
+  frame.setAttribute('x', pad); frame.setAttribute('y', pad);
+  frame.setAttribute('width', W-2*pad); frame.setAttribute('height', H-2*pad);
+  frame.setAttribute('fill', 'none'); frame.setAttribute('stroke', border); frame.setAttribute('stroke-width','1');
+  svg.appendChild(frame);
+
+  [ [sx(50),pad,sx(50),H-pad], [pad,sy(50),W-pad,sy(50)] ].forEach(function(c){
+    var line = document.createElementNS(svgns,'line');
+    line.setAttribute('x1', c[0]); line.setAttribute('y1', c[1]);
+    line.setAttribute('x2', c[2]); line.setAttribute('y2', c[3]);
+    line.setAttribute('stroke', border); line.setAttribute('stroke-width','1');
+    line.setAttribute('stroke-dasharray','4 4');
+    svg.appendChild(line);
+  });
+
+  // points, one per illustrative tract, count-matched per quadrant
+  quadrants.forEach(function(q){
+    var dot = cvar(q.dot, '#888');
+    for(var i=0;i<q.count;i++){
+      var x = centerBiased(q.xPts[0], q.xPts[1]);
+      var y = centerBiased(q.yPts[0], q.yPts[1]);
+      var px = sx(x), py = sy(y);
+      var xVal = Math.round(x), yVal = Math.round(y);
+
+      var c = document.createElementNS(svgns,'circle');
+      c.setAttribute('cx', px);
+      c.setAttribute('cy', py);
+      c.setAttribute('r', 2.1);
+      c.setAttribute('fill', dot);
+      c.setAttribute('fill-opacity', '0.6');
+      svg.appendChild(c);
+
+      // larger transparent hit target — hover shows tract-level detail
+      var hit = document.createElementNS(svgns,'circle');
+      hit.setAttribute('cx', px);
+      hit.setAttribute('cy', py);
+      hit.setAttribute('r', 6);
+      hit.setAttribute('fill', 'transparent');
+      hit.style.cursor = 'pointer';
+      hit.addEventListener('mouseenter', function(){ this._c.setAttribute('r', 3.4); this._c.setAttribute('fill-opacity', '1'); }.bind(hit));
+      hit.addEventListener('mousemove', function(evt){ showTip(evt, this._q, this._xVal, this._yVal); }.bind(hit));
+      hit.addEventListener('mouseleave', function(){ this._c.setAttribute('r', 2.1); this._c.setAttribute('fill-opacity', '0.6'); hideTip(); }.bind(hit));
+      hit._c = c; hit._q = q; hit._xVal = xVal; hit._yVal = yVal;
+      svg.appendChild(hit);
+    }
+  });
+
+  var lblX = document.createElementNS(svgns,'text');
+  lblX.setAttribute('x', W/2); lblX.setAttribute('y', H-10);
+  lblX.setAttribute('text-anchor','middle'); lblX.setAttribute('class','axis-label');
+  lblX.setAttribute('fill', ink); lblX.textContent = 'ATPI percentile →';
+  svg.appendChild(lblX);
+
+  var lblY = document.createElementNS(svgns,'text');
+  lblY.setAttribute('x', -H/2); lblY.setAttribute('y', 14);
+  lblY.setAttribute('text-anchor','middle'); lblY.setAttribute('class','axis-label');
+  lblY.setAttribute('fill', ink);
+  lblY.setAttribute('transform','rotate(-90)');
+  lblY.textContent = 'Child share percentile →';
   svg.appendChild(lblY);
 })();
 </script>
