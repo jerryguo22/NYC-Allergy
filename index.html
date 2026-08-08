@@ -1,0 +1,837 @@
+<title>Can a Green City Really Make Children Healthier?</title>
+<style>
+:root{
+  --paper:#f5f4ec;
+  --ink:#1e2a22;
+  --moss:#3f6b4a;
+  --moss-dim:#5c7f63;
+  --pollen:#c97a2b;
+  --clay:#a8402a;
+  --mist:#dbe0d6;
+  --card:#ffffff;
+  --border:rgba(30,42,34,0.14);
+  --accentSoft:rgba(63,107,74,0.10);
+  --pollenSoft:rgba(201,122,43,0.12);
+  --claySoft:rgba(168,64,42,0.12);
+}
+:root[data-theme="dark"]{
+  --paper:#141b16;
+  --ink:#eef1ec;
+  --moss:#7bab84;
+  --moss-dim:#9fbfa6;
+  --pollen:#e2a765;
+  --clay:#e08871;
+  --mist:#2a352d;
+  --card:#1b2420;
+  --border:rgba(238,241,236,0.14);
+  --accentSoft:rgba(123,171,132,0.14);
+  --pollenSoft:rgba(226,167,101,0.14);
+  --claySoft:rgba(224,136,113,0.14);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#141b16;
+    --ink:#eef1ec;
+    --moss:#7bab84;
+    --moss-dim:#9fbfa6;
+    --pollen:#e2a765;
+    --clay:#e08871;
+    --mist:#2a352d;
+    --card:#1b2420;
+    --border:rgba(238,241,236,0.14);
+    --accentSoft:rgba(123,171,132,0.14);
+    --pollenSoft:rgba(226,167,101,0.14);
+    --claySoft:rgba(224,136,113,0.14);
+  }
+}
+
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+  line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+.serif{font-family:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;}
+.mono{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace; font-variant-numeric:tabular-nums;}
+
+a{color:var(--moss);}
+
+/* ---------- Header ---------- */
+header{
+  position:sticky; top:0; z-index:50;
+  background:color-mix(in srgb, var(--paper) 88%, transparent);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--border);
+}
+.header-inner{
+  max-width:1080px; margin:0 auto; padding:14px 24px;
+  display:flex; align-items:center; justify-content:space-between; gap:20px;
+  flex-wrap:wrap;
+}
+.brand{display:flex; align-items:baseline; gap:10px;}
+.brand-mark{
+  width:28px;height:28px;border-radius:50%;
+  background:conic-gradient(from 210deg, var(--moss), var(--pollen), var(--moss));
+  flex:none;
+}
+.brand-name{font-family:Georgia,"Iowan Old Style",serif; font-size:16.5px; font-weight:600; letter-spacing:0.2px;}
+.brand-sub{font-size:11.5px; color:var(--moss-dim); letter-spacing:0.06em; text-transform:uppercase;}
+
+nav{display:flex; gap:4px; flex-wrap:wrap;}
+nav button{
+  appearance:none; border:1px solid transparent; background:transparent;
+  color:var(--ink); opacity:0.62;
+  font-size:13.5px; font-weight:600; letter-spacing:0.01em;
+  padding:7px 13px; border-radius:8px; cursor:pointer;
+  font-family:inherit;
+  transition:opacity .15s ease, background .15s ease;
+}
+nav button:hover{opacity:0.9; background:var(--accentSoft);}
+nav button.active{opacity:1; background:var(--accentSoft); border-color:var(--border); color:var(--moss);}
+nav button:focus-visible{outline:2px solid var(--moss); outline-offset:2px;}
+
+main{max-width:1080px; margin:0 auto; padding:0 24px 90px;}
+.page{display:none; animation:fade .35s ease;}
+.page.active{display:block;}
+@keyframes fade{from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:none;}}
+@media (prefers-reduced-motion: reduce){ .page{animation:none;} }
+
+/* ---------- Typography scale ---------- */
+h1{font-family:Georgia,"Iowan Old Style",serif; font-size:clamp(30px,4.6vw,46px); line-height:1.12; margin:0 0 6px; text-wrap:balance; letter-spacing:-0.01em;}
+h2{font-family:Georgia,"Iowan Old Style",serif; font-size:26px; margin:0 0 4px; text-wrap:balance;}
+h3{font-family:Georgia,"Iowan Old Style",serif; font-size:18.5px; margin:0 0 6px;}
+.kicker{
+  font-size:12px; text-transform:uppercase; letter-spacing:0.12em; color:var(--pollen);
+  font-weight:700; margin:0 0 14px;
+}
+.lede{font-size:17px; color:var(--ink); opacity:0.86; max-width:640px; margin:14px 0 0;}
+p{margin:0 0 14px;}
+.section{margin-top:56px;}
+.section:first-of-type{margin-top:38px;}
+
+/* ---------- Hero ---------- */
+.hero{padding:52px 0 8px; border-bottom:1px solid var(--border);}
+.hero-grid{display:grid; grid-template-columns:1.3fr 1fr; gap:40px; align-items:end;}
+@media (max-width:760px){ .hero-grid{grid-template-columns:1fr;} }
+.central-narrative{
+  background:var(--card); border:1px solid var(--border); border-radius:14px;
+  padding:20px 22px; font-size:14.5px; color:var(--ink); opacity:0.92;
+}
+.central-narrative b{color:var(--moss);}
+
+.stat-strip{display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--border); border:1px solid var(--border); border-radius:12px; overflow:hidden; margin:34px 0;}
+.stat{background:var(--card); padding:18px 16px;}
+.stat .num{font-family:Georgia,serif; font-size:26px; color:var(--moss); font-variant-numeric:tabular-nums;}
+.stat .num.amber{color:var(--pollen);}
+.stat .num.clay{color:var(--clay);}
+.stat .label{font-size:12px; opacity:0.65; margin-top:3px;}
+@media (max-width:760px){ .stat-strip{grid-template-columns:repeat(2,1fr);} }
+
+/* ---------- Cards / generic ---------- */
+.card{background:var(--card); border:1px solid var(--border); border-radius:14px; padding:22px 24px;}
+.grid-2{display:grid; grid-template-columns:1fr 1fr; gap:20px;}
+@media (max-width:760px){ .grid-2{grid-template-columns:1fr;} }
+
+.rq-list{list-style:none; margin:0; padding:0; display:grid; gap:10px;}
+.rq-list li{
+  background:var(--card); border:1px solid var(--border); border-radius:10px;
+  padding:13px 16px; font-size:14.5px; display:flex; gap:12px;
+}
+.rq-tag{font-family:Georgia,serif; color:var(--pollen); font-weight:700; flex:none;}
+
+.pill{display:inline-flex; align-items:center; gap:6px; font-size:11.5px; font-weight:700; letter-spacing:0.03em; text-transform:uppercase; padding:4px 10px; border-radius:999px;}
+.pill.moss{background:var(--accentSoft); color:var(--moss);}
+.pill.amber{background:var(--pollenSoft); color:var(--pollen);}
+.pill.clay{background:var(--claySoft); color:var(--clay);}
+
+.callout{
+  border-left:3px solid var(--pollen); background:var(--pollenSoft);
+  padding:14px 18px; border-radius:0 10px 10px 0; font-size:14px;
+}
+
+/* ---------- Map visuals ---------- */
+.map-wrap{display:grid; grid-template-columns:1.1fr 0.9fr; gap:26px; align-items:start;}
+@media (max-width:820px){ .map-wrap{grid-template-columns:1fr;} }
+.map-frame{background:var(--card); border:1px solid var(--border); border-radius:14px; padding:18px;}
+.map-caption{font-size:12px; opacity:0.6; margin-top:10px;}
+.legend{display:flex; align-items:center; gap:10px; font-size:12px; margin-top:12px; flex-wrap:wrap;}
+.legend-swatch{width:14px;height:14px;border-radius:3px; flex:none;}
+
+.borough-label{font-size:10.5px; fill:var(--ink); opacity:0.72; font-family:Georgia,serif;}
+
+/* scatter */
+.axis-label{font-size:11px; opacity:0.55;}
+
+/* bars */
+.bar-row{display:grid; grid-template-columns:120px 1fr 64px; align-items:center; gap:10px; margin-bottom:9px; font-size:13px;}
+.bar-track{background:var(--mist); border-radius:5px; height:11px; overflow:hidden;}
+.bar-fill{height:100%; border-radius:5px 0 0 5px; background:var(--moss);}
+.bar-fill.amber{background:var(--pollen);}
+.bar-val{text-align:right; font-size:12.5px; opacity:0.7;}
+
+/* quadrant matrix */
+.quad-matrix{display:grid; grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr; gap:14px; aspect-ratio:1.5/1; margin-bottom:8px;}
+.quad-cell{border-radius:12px; padding:16px 18px; position:relative; display:flex; flex-direction:column; justify-content:space-between; border:1px solid var(--border);}
+.quad-cell.hh{background:var(--claySoft);}
+.quad-cell.hl{background:var(--pollenSoft);}
+.quad-cell.lh{background:var(--accentSoft);}
+.quad-cell.ll{background:var(--mist);}
+.quad-title{font-weight:700; font-size:13.5px;}
+.quad-cell.hh .quad-title{color:var(--clay);}
+.quad-cell.hl .quad-title{color:var(--pollen);}
+.quad-cell.lh .quad-title{color:var(--moss);}
+.quad-stat-row{display:flex; justify-content:space-between; font-size:12px; opacity:0.75; margin-top:2px;}
+.quad-stat-row b{font-variant-numeric:tabular-nums; opacity:1;}
+.axis-title{font-size:11px; text-align:center; opacity:0.55; text-transform:uppercase; letter-spacing:0.08em;}
+
+/* scenario tabs */
+.scenario-tabs{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;}
+.stab{border:1px solid var(--border); background:var(--card); border-radius:8px; padding:8px 14px; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; color:var(--ink); opacity:0.65;}
+.stab.active{opacity:1; border-color:var(--moss); color:var(--moss); background:var(--accentSoft);}
+.scenario-panel{display:none;}
+.scenario-panel.active{display:block; animation:fade .3s ease;}
+
+.tag-list{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px;}
+.tag-list span{background:var(--mist); border-radius:6px; padding:5px 10px; font-size:12.5px;}
+
+table{border-collapse:collapse; width:100%; font-size:13.5px;}
+th,td{text-align:left; padding:9px 10px; border-bottom:1px solid var(--border);}
+th{font-size:11.5px; text-transform:uppercase; letter-spacing:0.05em; opacity:0.6; font-weight:700;}
+.scroll-x{overflow-x:auto;}
+
+.footer-note{
+  margin-top:70px; padding-top:24px; border-top:1px solid var(--border);
+  font-size:12.5px; opacity:0.6;
+}
+.methods-formula{
+  background:var(--ink); color:var(--paper); border-radius:10px; padding:16px 20px;
+  font-family:ui-monospace,monospace; font-size:14px; overflow-x:auto;
+}
+:root[data-theme="dark"] .methods-formula{ background:#0c110d; }
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]) .methods-formula{ background:#0c110d; } }
+
+.ref{font-size:13px; margin-bottom:12px; opacity:0.85;}
+.ref b{opacity:1;}
+
+/* ---------- Live Leaflet maps ---------- */
+.live-map-frame{
+  background:var(--card); border:1px solid var(--border); border-radius:14px;
+  padding:0; overflow:hidden;
+}
+.live-map{ height:min(62vh, 620px); min-height:420px; width:100%; background:var(--mist); }
+.map-toolbar{
+  display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;
+  padding:14px 18px; border-bottom:1px solid var(--border);
+}
+.map-toolbar .map-title{font-family:Georgia,serif; font-size:15px;}
+.map-toolbar .map-meta{font-size:12px; opacity:0.6;}
+.map-legend-row{display:flex; align-items:center; gap:14px; flex-wrap:wrap; padding:14px 18px; font-size:12px;}
+.map-legend-row .lg-item{display:flex; align-items:center; gap:6px;}
+.map-legend-row .lg-swatch{width:13px;height:13px;border-radius:3px; flex:none; display:inline-block;}
+.map-legend-row .lg-dot{width:9px;height:9px;border-radius:50%; flex:none; display:inline-block;}
+.map-loading{
+  position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+  font-size:13px; color:var(--ink); opacity:0.6; background:var(--mist); z-index:2; pointer-events:none;
+}
+.map-shell{position:relative;}
+.leaflet-popup-content-wrapper{ background:var(--card); color:var(--ink); border-radius:10px; }
+.leaflet-popup-tip{ background:var(--card); }
+.leaflet-container{ font-family:inherit; }
+.tract-tooltip{font-size:12.5px; line-height:1.5;}
+.tract-tooltip b{color:var(--clay);}
+</style>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+
+<header>
+  <div class="header-inner">
+    <div class="brand">
+      <div class="brand-mark"></div>
+      <div>
+        <div class="brand-name">Green City, Fair City</div>
+        <div class="brand-sub">ATPI · NYC Street Trees</div>
+      </div>
+    </div>
+    <nav id="tabs">
+      <button data-page="home" class="active">Overview</button>
+      <button data-page="atpi">ATPI Map</button>
+      <button data-page="trees">Tree Map</button>
+      <button data-page="quadrants">Four Quadrants</button>
+      <button data-page="methods">Methods &amp; Sources</button>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<!-- ===================== HOME ===================== -->
+<section id="home" class="page active">
+  <div class="hero">
+    <div class="kicker">A Spatial Screening Study · New York City</div>
+    <h1>Can a green city really make children healthier?</h1>
+    <p class="lede">A four-quadrant analysis of the spatial distribution of children and street-tree pollen potential in New York City.</p>
+
+    <div class="hero-grid" style="margin-top:30px;">
+      <div class="central-narrative">
+        Cities need trees — but a healthy green city cannot simply pursue <b>"more trees."</b> It must also ask which species are planted, where they are planted, and whether different communities have the capacity to respond to potential pollen impacts. This study does not oppose urban greening. It moves the conversation from <i>planting more</i> to planting, managing, and funding trees <b>more scientifically and equitably.</b>
+      </div>
+      <ul class="rq-list">
+        <li><span class="rq-tag">RQ1</span> What is the spatial distribution of street-tree pollen potential in NYC?</li>
+        <li><span class="rq-tag">RQ2</span> Is that potential spatially associated with the share of residents under 18?</li>
+        <li><span class="rq-tag">RQ3</span> How can a four-quadrant framework prioritize greening, monitoring, education, and health resources?</li>
+      </ul>
+    </div>
+
+    <div class="stat-strip">
+      <div class="stat"><div class="num">652,168</div><div class="label">living street trees citywide</div></div>
+      <div class="stat"><div class="num amber">132</div><div class="label">recorded species</div></div>
+      <div class="stat"><div class="num">r = 0.159</div><div class="label">child share ↔ ATPI correlation</div></div>
+      <div class="stat"><div class="num clay">556</div><div class="label">tracts: high child share &amp; high ATPI</div></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="kicker">Why children</div>
+    <h2>A population with compounding exposure</h2>
+    <p style="max-width:680px;">Children are a priority population not simply because of "weak immunity," but because their respiratory systems are still developing — making them more susceptible to irritants like PM2.5 and pollen. Allergic symptoms and asthma affect sleep, activity, and school attendance, and children have limited ability to identify or avoid exposures on their own — leaving decisions to families, schools, and public institutions.</p>
+  </div>
+
+  <div class="section grid-2">
+    <div class="card">
+      <span class="pill moss">Not opposed to greening</span>
+      <h3 style="margin-top:12px;">What this study is</h3>
+      <p style="font-size:14px; margin:0;">A transparent spatial-screening framework: estimate street-tree pollen-source potential, locate where it overlaps with child populations, then use four quadrants to translate the overlap into resource-allocation options.</p>
+    </div>
+    <div class="card">
+      <span class="pill clay">Read carefully</span>
+      <h3 style="margin-top:12px;">What this study is not</h3>
+      <p style="font-size:14px; margin:0;">ATPI is an indicator of <b>potential pollen sources</b> — not measured pollen concentration, personal exposure, or childhood allergy risk. A citywide correlation is not a diagnosis, and no tract is a "hotspot" for disease.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="callout">
+      <b>Core equity question —</b> neighborhoods differ in tree species, child population, housing conditions, and public resources. Even under similar environmental conditions, families differ in their capacity to prevent, avoid, and treat allergic illness. Can policy respond to each community's actual combination of needs?
+    </div>
+  </div>
+</section>
+
+<!-- ===================== ATPI MAP ===================== -->
+<section id="atpi" class="page">
+  <div class="kicker">Result One &amp; Two</div>
+  <h2>Where is street-tree pollen potential concentrated?</h2>
+  <p class="lede" style="margin-top:6px;">The Allergenic Tree Pollen Index (ATPI) weights each tree by species-level allergenic evidence and size, then aggregates to the 2020 Census Tract level.</p>
+
+  <div class="section">
+    <div class="live-map-frame">
+      <div class="map-toolbar">
+        <div class="map-title">ATPI by census tract — citywide choropleth</div>
+        <div class="map-meta">2,325 tracts · live, zoomable · OpenStreetMap base layer</div>
+      </div>
+      <div class="map-shell">
+        <div id="atpi-map" class="live-map"></div>
+        <div class="map-loading" id="atpi-map-loading">Loading tract boundaries…</div>
+      </div>
+      <div class="map-legend-row">
+        <span style="opacity:0.65;">ATPI percentile, citywide:</span>
+        <span class="lg-item"><span class="lg-swatch" style="background:#e7e9df;"></span>0–20</span>
+        <span class="lg-item"><span class="lg-swatch" style="background:#c9d3bd;"></span>20–40</span>
+        <span class="lg-item"><span class="lg-swatch" style="background:#e6c37f;"></span>40–60</span>
+        <span class="lg-item"><span class="lg-swatch" style="background:#d98a3d;"></span>60–80</span>
+        <span class="lg-item"><span class="lg-swatch" style="background:#a8402a;"></span>80–100</span>
+      </div>
+    </div>
+    <p class="map-caption">Computed from all 652,088 geolocated living street trees (of 652,173 total), spatially joined to 2020 Census Tract boundaries. ATPI = Σ per-tree potential ÷ tract land area. Click any tract for its exact value. This is a potential-pollen-source indicator, not measured pollen or health data.</p>
+  </div>
+
+  <div class="section map-wrap">
+    <div class="map-frame">
+      <svg viewBox="0 0 420 420" style="width:100%; height:auto;" role="img" aria-label="Schematic map of relative ATPI concentration across NYC boroughs">
+        <!-- Staten Island -->
+        <path d="M40 300 Q30 340 55 375 Q90 400 120 380 Q135 350 110 320 Q80 290 40 300 Z" fill="var(--mist)" stroke="var(--border)"/>
+        <text x="75" y="345" class="borough-label" text-anchor="middle">Staten Island</text>
+
+        <!-- Brooklyn -->
+        <path d="M150 260 Q140 320 190 360 Q250 390 290 350 Q300 300 260 270 Q200 240 150 260 Z" fill="var(--clay)" fill-opacity="0.55" stroke="var(--border)"/>
+        <text x="215" y="325" class="borough-label" text-anchor="middle" fill="#fff" opacity="0.9">Brooklyn</text>
+
+        <!-- Queens -->
+        <path d="M230 150 Q210 210 250 260 Q310 300 360 260 Q390 210 360 160 Q300 120 230 150 Z" fill="var(--clay)" fill-opacity="0.65" stroke="var(--border)"/>
+        <text x="300" y="210" class="borough-label" text-anchor="middle" fill="#fff" opacity="0.9">Queens</text>
+
+        <!-- Manhattan -->
+        <path d="M175 60 Q165 120 175 190 Q185 230 205 220 Q220 150 215 90 Q205 55 175 60 Z" fill="var(--pollen)" fill-opacity="0.5" stroke="var(--border)"/>
+        <text x="192" y="145" class="borough-label" text-anchor="middle">Manhattan</text>
+
+        <!-- Bronx -->
+        <path d="M210 30 Q195 60 210 100 Q235 130 270 110 Q285 70 260 40 Q235 20 210 30 Z" fill="var(--pollen)" fill-opacity="0.4" stroke="var(--border)"/>
+        <text x="240" y="72" class="borough-label" text-anchor="middle">Bronx</text>
+      </svg>
+      <div class="legend">
+        <div class="legend-swatch" style="background:var(--clay); opacity:0.6;"></div> Higher relative ATPI
+        <div class="legend-swatch" style="background:var(--pollen); opacity:0.45; margin-left:10px;"></div> Moderate
+        <div class="legend-swatch" style="background:var(--mist); margin-left:10px;"></div> Lower
+      </div>
+      <p class="map-caption">Schematic borough-level rendering (not to scale / not a GIS map), illustrating the paper's reported pattern: many high-ATPI tracts cluster in Brooklyn and Queens, likely reflecting large mature trees, historical planting, and the built environment.</p>
+    </div>
+
+    <div class="map-frame">
+      <h3>Child share vs. ATPI</h3>
+      <svg id="scatter" viewBox="0 0 300 240" style="width:100%; height:auto;"></svg>
+      <p class="map-caption">Each point is an illustrative census tract, generated to match the paper's reported <b>r = 0.159</b> — a weak positive correlation. Higher-child tracts trend only slightly toward higher ATPI; the citywide relationship is neither strong nor simple.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>Socioeconomic associations with ATPI</h3>
+    <div class="card">
+      <div class="bar-row"><div>Housing age</div><div class="bar-track"><div class="bar-fill" style="width:38.2%"></div></div><div class="bar-val">r = 0.382</div></div>
+      <div class="bar-row"><div>Renter share</div><div class="bar-track"><div class="bar-fill amber" style="width:24.9%"></div></div><div class="bar-val">r = −0.249</div></div>
+      <div class="bar-row"><div>Poverty rate</div><div class="bar-track"><div class="bar-fill amber" style="width:24.8%"></div></div><div class="bar-val">r = −0.248</div></div>
+      <p style="font-size:13px; opacity:0.75; margin:14px 0 0;">ATPI tracks more closely with <b>older built environments</b> — consistent with mature trees and historical planting — than with composite social vulnerability. This is a correlation, not a causal claim.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== TREE MAP ===================== -->
+<section id="trees" class="page">
+  <div class="kicker">NYC 2015 Street Tree Census</div>
+  <h2>652,168 living trees, mapped by allergenic contribution</h2>
+  <p class="lede" style="margin-top:6px;">Tree count alone doesn't determine pollen potential — a tract with fewer trees can still register high ATPI if those trees are large and highly allergenic.</p>
+
+  <div class="section">
+    <div class="live-map-frame">
+      <div class="map-toolbar">
+        <div class="map-title">Every living street tree in New York City</div>
+        <div class="map-meta">652,088 mapped points · colored by allergenic-evidence tier</div>
+      </div>
+      <div class="map-shell">
+        <div id="tree-map" class="live-map"></div>
+        <div class="map-loading" id="tree-map-loading">Loading 652,088 trees…</div>
+      </div>
+      <div class="map-legend-row">
+        <span style="opacity:0.65;">Allergenic evidence:</span>
+        <span class="lg-item"><span class="lg-dot" style="background:#a8402a;"></span>Priority</span>
+        <span class="lg-item"><span class="lg-dot" style="background:#c97a2b;"></span>Concern–high</span>
+        <span class="lg-item"><span class="lg-dot" style="background:#d9a552;"></span>Concern</span>
+        <span class="lg-item"><span class="lg-dot" style="background:#9aa79b;"></span>Uncertain</span>
+        <span class="lg-item"><span class="lg-dot" style="background:#7c9a74;"></span>Low-concern</span>
+      </div>
+    </div>
+    <p class="map-caption">Zoom in to street level to see individual trees. Weight tiers are a demonstration mapping from species genus to wind- vs. insect-pollination status (see Methods) — not the source paper's unpublished per-species coefficient table.</p>
+  </div>
+
+  <div class="section grid-2">
+    <div class="card">
+      <h3>Top street-tree species</h3>
+      <div style="margin-top:14px;">
+        <div class="bar-row"><div>London planetree</div><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><div class="bar-val">87,014</div></div>
+        <div class="bar-row"><div>Honeylocust</div><div class="bar-track"><div class="bar-fill" style="width:73.8%"></div></div><div class="bar-val">64,263</div></div>
+        <div class="bar-row"><div>Callery pear</div><div class="bar-track"><div class="bar-fill" style="width:67.7%"></div></div><div class="bar-val">58,931</div></div>
+        <div class="bar-row"><div>Pin oak</div><div class="bar-track"><div class="bar-fill amber" style="width:61.1%"></div></div><div class="bar-val">53,185</div></div>
+        <div class="bar-row"><div>Norway maple</div><div class="bar-track"><div class="bar-fill" style="width:39.3%"></div></div><div class="bar-val">34,189</div></div>
+      </div>
+      <p style="font-size:11.5px; opacity:0.55; margin-top:4px;">Exact counts from the NYC 2015 Street Tree Census (all 652,173 living trees).</p>
+    </div>
+
+    <div class="card">
+      <h3>Allergenic evidence groups</h3>
+      <svg viewBox="0 0 200 200" style="width:160px; height:160px; display:block; margin:10px auto;">
+        <circle cx="100" cy="100" r="70" fill="none" stroke="var(--mist)" stroke-width="26"/>
+        <circle cx="100" cy="100" r="70" fill="none" stroke="var(--clay)" stroke-width="26"
+          stroke-dasharray="439.8" stroke-dashoffset="315.7" transform="rotate(-90 100 100)"/>
+        <text x="100" y="94" text-anchor="middle" class="serif" font-size="26" fill="var(--ink)">26.4%</text>
+        <text x="100" y="114" text-anchor="middle" font-size="10.5" fill="var(--ink)" opacity="0.6">of all trees</text>
+      </svg>
+      <p style="text-align:center; font-size:13.5px;"><b>172,438</b> trees fall into the four <span style="color:var(--clay); font-weight:700;">priority</span> allergenic-evidence groups, out of 652,168 total living street trees — the remainder span concern, uncertain, low-concern, and unclassified categories.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="callout">
+      Historical planting has made the London planetree a large share of NYC's street-tree basal area — Katz et al. (2024) identify <i>Quercus, Platanus, Morus,</i> and <i>Betula</i> as key contributors to airborne tree pollen citywide, forming the evidentiary basis for ATPI's species weights.
+    </div>
+  </div>
+</section>
+
+<!-- ===================== FOUR QUADRANTS ===================== -->
+<section id="quadrants" class="page">
+  <div class="kicker">Core Result</div>
+  <h2>Children and communities in the four quadrants</h2>
+  <p class="lede" style="margin-top:6px;">Citywide medians split every tract into one of four categories — a policy-screening tool, not a disease diagnosis.</p>
+
+  <div class="section">
+    <div class="quad-matrix">
+      <div class="quad-cell lh">
+        <div><div class="quad-title">Low ATPI · High Child Share</div></div>
+        <div>
+          <div class="quad-stat-row"><span>Tracts</span><b>565</b></div>
+          <div class="quad-stat-row"><span>Est. children</span><b>~610,000</b></div>
+          <div class="quad-stat-row"><span>Child share</span><b>26.7%</b></div>
+          <div class="quad-stat-row"><span>Poverty rate</span><b>23.7%</b></div>
+        </div>
+      </div>
+      <div class="quad-cell hh">
+        <div><div class="quad-title">High ATPI · High Child Share</div></div>
+        <div>
+          <div class="quad-stat-row"><span>Tracts</span><b>556</b></div>
+          <div class="quad-stat-row"><span>Est. children</span><b>~504,000</b></div>
+          <div class="quad-stat-row"><span>Child share</span><b>25.6%</b></div>
+          <div class="quad-stat-row"><span>Poverty rate</span><b>15.7%</b></div>
+        </div>
+      </div>
+      <div class="quad-cell ll">
+        <div><div class="quad-title">Low ATPI · Low Child Share</div></div>
+        <div>
+          <div class="quad-stat-row"><span>Tracts</span><b>556</b></div>
+          <div class="quad-stat-row"><span>Est. children</span><b>~290,000</b></div>
+          <div class="quad-stat-row"><span>Child share</span><b>13.2%</b></div>
+          <div class="quad-stat-row"><span>Poverty rate</span><b>15.5%</b></div>
+        </div>
+      </div>
+      <div class="quad-cell hl">
+        <div><div class="quad-title">High ATPI · Low Child Share</div></div>
+        <div>
+          <div class="quad-stat-row"><span>Tracts</span><b>565</b></div>
+          <div class="quad-stat-row"><span>Est. children</span><b>~309,000</b></div>
+          <div class="quad-stat-row"><span>Child share</span><b>15.0%</b></div>
+          <div class="quad-stat-row"><span>Poverty rate</span><b>11.6%</b></div>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex; justify-content:space-between; font-size:11px; opacity:0.55; text-transform:uppercase; letter-spacing:0.06em; padding:0 4px;">
+      <span>← Low ATPI</span><span>High ATPI →</span>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="callout">
+      <b>The most important social-justice finding —</b> high-ATPI/high-child tracts clearly deserve pollen-related priority. But <b>low-ATPI/high-child</b> tracts hold more children overall, and the highest renter share (72.9%) and poverty rate (23.7%) of any quadrant. Allocating child-health resources by ATPI alone would overlook them. Equity means matching resources to each community's actual needs — not giving every tract the same program.
+    </div>
+  </div>
+
+  <div class="section">
+    <h3 style="margin-bottom:14px;">If you were a policymaker</h3>
+    <div class="scenario-tabs" id="stabs">
+      <button class="stab active" data-s="0">High ATPI · High Child</button>
+      <button class="stab" data-s="1">High ATPI · Low Child</button>
+      <button class="stab" data-s="2">Low ATPI · High Child</button>
+      <button class="stab" data-s="3">Low ATPI · Low Child</button>
+    </div>
+
+    <div class="card scenario-panel active" data-s="0">
+      <p style="margin:0 0 8px;"><b>Primary issue:</b> potential pollen sources and child populations are both concentrated.</p>
+      <div class="tag-list">
+        <span>Seasonal pollen monitoring near schools</span><span>Pollen-season health alerts</span><span>Asthma/allergy prevention education</span><span>Review nearby priority tree species</span><span>Diversify future replacement planting</span><span>Carefully timed pruning</span>
+      </div>
+      <p style="font-size:12.5px; opacity:0.65; margin:12px 0 0;"><b>Boundary:</b> ATPI alone should not justify large-scale removal of mature trees, and these tracts should not be labeled childhood-allergy hotspots.</p>
+    </div>
+    <div class="card scenario-panel" data-s="1">
+      <p style="margin:0 0 8px;"><b>Primary issue:</b> pollen-source potential is high, but child share is low.</p>
+      <div class="tag-list">
+        <span>Long-term species transition</span><span>Avoid over-concentration in priority groups</span><span>Succession plans for mature trees</span><span>Preserve shade/cooling benefits</span><span>Monitor actual pollen dispersal</span>
+      </div>
+    </div>
+    <div class="card scenario-panel" data-s="2">
+      <p style="margin:0 0 8px;"><b>Primary issue:</b> many children and greater socioeconomic pressure, but street-tree pollen isn't the most prominent signal.</p>
+      <div class="tag-list">
+        <span>Housing mold/dampness/pest inspections</span><span>Air quality near schools</span><span>Traffic-pollution reduction</span><span>Pediatric asthma care</span><span>Tenant health &amp; housing rights</span><span>Continued appropriate tree planting</span>
+      </div>
+      <p style="font-size:12.5px; opacity:0.65; margin:12px 0 0;"><b>Insight:</b> prioritizing child health doesn't mean organizing every resource around tree pollen.</p>
+    </div>
+    <div class="card scenario-panel" data-s="3">
+      <p style="margin:0 0 8px;"><b>Primary issue:</b> both indicators are low — which does not mean health problems are absent.</p>
+      <div class="tag-list">
+        <span>Maintain canopy &amp; species diversity</span><span>Baseline monitoring</span><span>Long-term comparison sites</span><span>Prevent future single-species concentration</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== METHODS ===================== -->
+<section id="methods" class="page">
+  <div class="kicker">Data &amp; Methods</div>
+  <h2>Observing invisible pollen potential</h2>
+
+  <div class="section grid-2">
+    <div class="card">
+      <h3>Data sources</h3>
+      <ul style="margin:0; padding-left:18px; font-size:14px;">
+        <li>NYC 2015 Street Tree Census — species, location, DBH, health status for 652,168 living trees</li>
+        <li>Tree-pollen evidence — species classified priority / concern / uncertain / low-concern / unclassified</li>
+        <li>2020 Census Tract data — total population, child share, poverty rate, renter share, housing age</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Constructing ATPI</h3>
+      <p style="font-size:14px; margin:0 0 10px;">Step 1: weight by species-level allergenic evidence. Step 2: estimate basal area from DBH. Step 3: aggregate per-tree potential and divide by tract land area.</p>
+      <div class="methods-formula">
+        P&#7522; = W&#7522; × ln(1 + BA&#7522; / 0.01)<br/>
+        BA&#7522; = π × (DBH&#7522; × 0.0254 / 2)&sup2;
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>Limitations</h3>
+    <div class="card">
+      <p style="font-size:14px; margin:0;">The street-tree census excludes parks, private yards, and parts of the urban forest. ATPI is a potential-source indicator, <b>not</b> measured pollen concentration. Child share is not childhood allergy incidence. Census-tract results cannot represent any individual child's personal exposure. Correlation does not establish causation.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>Selected references (APA 7th)</h3>
+    <div class="ref"><b>Eisenman, T. S., et al. (2019).</b> Urban trees, air quality, and asthma: An interdisciplinary review. <i>Landscape and Urban Planning, 187</i>, 47–59.</div>
+    <div class="ref"><b>Ito, K., et al. (2015).</b> Daily spring pollen counts, allergy medication sales, and asthma ED visits in NYC, 2002–2012. <i>Environmental Health, 14</i>, Article 71.</div>
+    <div class="ref"><b>Katz, D. S. W., et al. (2024).</b> The effects of tree planting on allergenic pollen production in New York City. <i>Urban Forestry &amp; Urban Greening, 92</i>, Article 128208.</div>
+    <div class="ref"><b>Locke, D. H., et al. (2021).</b> Residential housing segregation and urban tree canopy in 37 US cities. <i>npj Urban Sustainability, 1</i>, Article 15.</div>
+    <div class="ref"><b>Lovasi, G. S., et al. (2013).</b> Urban tree canopy and asthma, wheeze, rhinitis, and allergic sensitization in a NYC birth cohort. <i>Environmental Health Perspectives, 121</i>(4), 494–500.</div>
+    <div class="ref"><b>Schwarz, K., et al. (2015).</b> Trees grow on money: Urban tree canopy cover and environmental justice. <i>PLOS ONE, 10</i>(4), e0122051.</div>
+  </div>
+
+  <div class="footer-note">
+    ATPI is an indicator of potential pollen sources — not measured pollen concentration, personal exposure, or childhood allergy risk. Built as a companion site to the paper structure; boroughs and scatter data are schematic illustrations of reported statistics, not live GIS or NYC Open Data feeds.
+  </div>
+</section>
+
+</main>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+// tab navigation
+document.getElementById('tabs').addEventListener('click', function(e){
+  var btn = e.target.closest('button');
+  if(!btn) return;
+  document.querySelectorAll('#tabs button').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(btn.dataset.page).classList.add('active');
+  window.scrollTo({top:0, behavior:'instant'});
+  if(btn.dataset.page === 'atpi'){ initAtpiMap(); setTimeout(()=>{ if(atpiMap) atpiMap.invalidateSize(); }, 60); }
+  if(btn.dataset.page === 'trees'){ initTreeMap(); setTimeout(()=>{ if(treeMap) treeMap.invalidateSize(); }, 60); }
+});
+
+// ---------------- Live maps: ATPI choropleth + all-tree point map ----------------
+var atpiMap = null, treeMap = null, atpiMapInited = false, treeMapInited = false;
+var NYC_CENTER = [40.7128, -73.95], NYC_ZOOM = 10;
+
+function addBaseTiles(map){
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    maxZoom: 19
+  }).addTo(map);
+}
+
+function atpiColor(pctile){
+  if(pctile == null) return '#cccccc';
+  if(pctile < 20) return '#e7e9df';
+  if(pctile < 40) return '#c9d3bd';
+  if(pctile < 60) return '#e6c37f';
+  if(pctile < 80) return '#d98a3d';
+  return '#a8402a';
+}
+
+function initAtpiMap(){
+  if(atpiMapInited) return;
+  atpiMapInited = true;
+  atpiMap = L.map('atpi-map', { scrollWheelZoom: true }).setView(NYC_CENTER, NYC_ZOOM);
+  addBaseTiles(atpiMap);
+
+  fetch('data/tracts_atpi.geojson')
+    .then(r => r.json())
+    .then(geo => {
+      L.geoJSON(geo, {
+        style: function(feature){
+          var p = feature.properties;
+          return {
+            fillColor: atpiColor(p.atpi_pctile),
+            fillOpacity: 0.72,
+            color: 'rgba(30,42,34,0.35)',
+            weight: 0.6
+          };
+        },
+        onEachFeature: function(feature, layer){
+          var p = feature.properties;
+          layer.bindTooltip(
+            '<div class="tract-tooltip"><b>' + p.boroname + '</b> · ' + (p.ntaname || '') +
+            '<br/>ATPI: <b>' + p.atpi.toLocaleString() + '</b> (percentile ' + p.atpi_pctile + ')' +
+            '<br/>Trees in tract: ' + p.tree_count.toLocaleString() +
+            '<br/><span style="opacity:.6;">GEOID ' + p.geoid + '</span></div>',
+            { sticky: true }
+          );
+          layer.on('mouseover', function(){ layer.setStyle({ weight: 1.6, color: 'rgba(30,42,34,0.7)' }); });
+          layer.on('mouseout', function(){ layer.setStyle({ weight: 0.6, color: 'rgba(30,42,34,0.35)' }); });
+        }
+      }).addTo(atpiMap);
+      var el = document.getElementById('atpi-map-loading');
+      if(el) el.remove();
+    })
+    .catch(err => {
+      var el = document.getElementById('atpi-map-loading');
+      if(el) el.textContent = 'Could not load tract data (' + err.message + ')';
+    });
+}
+
+var TREE_COLORS = { 1:'#7c9a74', 2:'#9aa79b', 3:'#d9a552', 4:'#c97a2b', 5:'#a8402a' };
+
+var TreeCanvasLayer = (typeof L !== 'undefined') ? L.Layer.extend({
+  initialize: function(data){ this._data = data; },
+  onAdd: function(map){
+    this._map = map;
+    this._canvas = L.DomUtil.create('canvas', 'leaflet-tree-canvas');
+    var size = map.getSize();
+    this._canvas.width = size.x; this._canvas.height = size.y;
+    this._canvas.style.position = 'absolute';
+    map.getPanes().overlayPane.appendChild(this._canvas);
+    map.on('moveend zoomend resize', this._reset, this);
+    this._reset();
+  },
+  onRemove: function(map){
+    L.DomUtil.remove(this._canvas);
+    map.off('moveend zoomend resize', this._reset, this);
+  },
+  _reset: function(){
+    var topLeft = this._map.containerPointToLayerPoint([0, 0]);
+    L.DomUtil.setPosition(this._canvas, topLeft);
+    var size = this._map.getSize();
+    this._canvas.width = size.x; this._canvas.height = size.y;
+    this._render();
+  },
+  _render: function(){
+    var ctx = this._canvas.getContext('2d');
+    ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
+    var map = this._map;
+    var bounds = map.getBounds().pad(0.15);
+    var sw = bounds.getSouthWest(), ne = bounds.getNorthEast();
+    var zoom = map.getZoom();
+    var r = zoom >= 17 ? 3.2 : zoom >= 15 ? 2.2 : zoom >= 13 ? 1.4 : zoom >= 11 ? 0.9 : 0.55;
+    var lat = this._data.lat, lng = this._data.lng, w = this._data.weight;
+    var n = lat.length;
+    for(var i = 0; i < n; i++){
+      var la = lat[i], ln = lng[i];
+      if(la < sw.lat || la > ne.lat || ln < sw.lng || ln > ne.lng) continue;
+      var pt = map.latLngToContainerPoint([la, ln]);
+      ctx.fillStyle = TREE_COLORS[w[i]] || '#9aa79b';
+      ctx.beginPath();
+      ctx.arc(pt.x, pt.y, r, 0, 6.283185307);
+      ctx.fill();
+    }
+  }
+}) : null;
+
+function initTreeMap(){
+  if(treeMapInited) return;
+  treeMapInited = true;
+  treeMap = L.map('tree-map', { scrollWheelZoom: true }).setView(NYC_CENTER, NYC_ZOOM);
+  addBaseTiles(treeMap);
+
+  fetch('data/trees.bin')
+    .then(r => r.arrayBuffer())
+    .then(buf => {
+      var stride = 10; // 2 float32 + 2 uint8
+      var n = Math.floor(buf.byteLength / stride);
+      var dv = new DataView(buf);
+      var lat = new Float32Array(n), lng = new Float32Array(n), weight = new Uint8Array(n);
+      for(var i = 0; i < n; i++){
+        var o = i * stride;
+        lat[i] = dv.getFloat32(o, true);
+        lng[i] = dv.getFloat32(o + 4, true);
+        weight[i] = dv.getUint8(o + 8);
+      }
+      new TreeCanvasLayer({ lat: lat, lng: lng, weight: weight }).addTo(treeMap);
+      var el = document.getElementById('tree-map-loading');
+      if(el) el.remove();
+    })
+    .catch(err => {
+      var el = document.getElementById('tree-map-loading');
+      if(el) el.textContent = 'Could not load tree data (' + err.message + ')';
+    });
+}
+
+// scenario sub-tabs
+document.getElementById('stabs').addEventListener('click', function(e){
+  var btn = e.target.closest('button');
+  if(!btn) return;
+  document.querySelectorAll('.stab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.scenario-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelector('.scenario-panel[data-s="'+btn.dataset.s+'"]').classList.add('active');
+});
+
+// seeded RNG for reproducible scatter
+function mulberry32(a){
+  return function(){
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    var t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  }
+}
+(function(){
+  var rand = mulberry32(42);
+  function gauss(){
+    var u=0,v=0;
+    while(u===0) u=rand();
+    while(v===0) v=rand();
+    return Math.sqrt(-2*Math.log(u)) * Math.cos(2*Math.PI*v);
+  }
+  var n = 160, r = 0.159;
+  var pts = [];
+  for(var i=0;i<n;i++){
+    var z1 = gauss(), z2 = gauss();
+    var x = z1;
+    var y = r*z1 + Math.sqrt(1-r*r)*z2;
+    pts.push([x,y]);
+  }
+  var svg = document.getElementById('scatter');
+  var pad = 28, W=300, H=240;
+  var xs = pts.map(p=>p[0]), ys = pts.map(p=>p[1]);
+  var xMin=Math.min(...xs), xMax=Math.max(...xs), yMin=Math.min(...ys), yMax=Math.max(...ys);
+  function sx(v){ return pad + (v-xMin)/(xMax-xMin) * (W-2*pad); }
+  function sy(v){ return H-pad - (v-yMin)/(yMax-yMin) * (H-2*pad); }
+
+  var css = getComputedStyle(document.documentElement);
+  var moss = css.getPropertyValue('--moss').trim() || '#3f6b4a';
+  var ink = css.getPropertyValue('--ink').trim() || '#1e2a22';
+  var border = css.getPropertyValue('--border').trim() || 'rgba(0,0,0,.15)';
+
+  var svgns = 'http://www.w3.org/2000/svg';
+  // axes
+  var axisX = document.createElementNS(svgns,'line');
+  axisX.setAttribute('x1', pad); axisX.setAttribute('x2', W-pad);
+  axisX.setAttribute('y1', H-pad); axisX.setAttribute('y2', H-pad);
+  axisX.setAttribute('stroke', border); axisX.setAttribute('stroke-width','1');
+  svg.appendChild(axisX);
+  var axisY = document.createElementNS(svgns,'line');
+  axisY.setAttribute('x1', pad); axisY.setAttribute('x2', pad);
+  axisY.setAttribute('y1', pad); axisY.setAttribute('y2', H-pad);
+  axisY.setAttribute('stroke', border); axisY.setAttribute('stroke-width','1');
+  svg.appendChild(axisY);
+
+  pts.forEach(function(p){
+    var c = document.createElementNS(svgns,'circle');
+    c.setAttribute('cx', sx(p[0]));
+    c.setAttribute('cy', sy(p[1]));
+    c.setAttribute('r', 2.6);
+    c.setAttribute('fill', moss);
+    c.setAttribute('fill-opacity', '0.55');
+    svg.appendChild(c);
+  });
+
+  var lblX = document.createElementNS(svgns,'text');
+  lblX.setAttribute('x', W/2); lblX.setAttribute('y', H-6);
+  lblX.setAttribute('text-anchor','middle'); lblX.setAttribute('class','axis-label');
+  lblX.setAttribute('fill', ink); lblX.textContent = 'Child share (tract) →';
+  svg.appendChild(lblX);
+
+  var lblY = document.createElementNS(svgns,'text');
+  lblY.setAttribute('x', -H/2); lblY.setAttribute('y', 12);
+  lblY.setAttribute('text-anchor','middle'); lblY.setAttribute('class','axis-label');
+  lblY.setAttribute('fill', ink);
+  lblY.setAttribute('transform','rotate(-90)');
+  lblY.textContent = 'ATPI →';
+  svg.appendChild(lblY);
+})();
+</script>
