@@ -164,8 +164,6 @@ p{margin:0 0 14px;}
 .legend{display:flex; align-items:center; gap:10px; font-size:12px; margin-top:12px; flex-wrap:wrap;}
 .legend-swatch{width:14px;height:14px;border-radius:3px; flex:none;}
 
-.borough-label{font-size:10.5px; fill:var(--ink); opacity:0.72; font-family:Georgia,serif;}
-
 /* scatter */
 .axis-label{font-size:11px; opacity:0.55;}
 
@@ -220,7 +218,7 @@ th{font-size:11.5px; text-transform:uppercase; letter-spacing:0.05em; opacity:0.
 .ref{font-size:13px; margin-bottom:12px; opacity:0.85;}
 .ref b{opacity:1;}
 
-/* ---------- Live Leaflet maps ---------- */
+/* ---------- Live MapLibre maps ---------- */
 .live-map-frame{
   background:var(--card); border:1px solid var(--border); border-radius:14px;
   padding:0; overflow:hidden;
@@ -241,9 +239,15 @@ th{font-size:11.5px; text-transform:uppercase; letter-spacing:0.05em; opacity:0.
   font-size:13px; color:var(--ink); opacity:0.6; background:var(--mist); z-index:2; pointer-events:none;
 }
 .map-shell{position:relative;}
-.leaflet-popup-content-wrapper{ background:var(--card); color:var(--ink); border-radius:10px; }
-.leaflet-popup-tip{ background:var(--card); }
-.leaflet-container{ font-family:inherit; }
+.maplibregl-popup-content{ background:var(--card); color:var(--ink); border-radius:10px; padding:10px 12px; box-shadow:0 4px 14px rgba(0,0,0,0.14); }
+.maplibregl-popup-anchor-bottom .maplibregl-popup-tip{ border-top-color:var(--card); }
+.maplibregl-popup-anchor-top .maplibregl-popup-tip{ border-bottom-color:var(--card); }
+.maplibregl-popup-anchor-left .maplibregl-popup-tip{ border-right-color:var(--card); }
+.maplibregl-popup-anchor-right .maplibregl-popup-tip{ border-left-color:var(--card); }
+.maplibregl-popup-close-button{ color:var(--ink); }
+.maplibregl-map{ font-family:inherit; }
+.maplibregl-ctrl-attrib{ background:color-mix(in srgb, var(--card) 75%, transparent); font-size:10.5px; }
+.maplibregl-ctrl-attrib a{ color:var(--ink); }
 .tract-tooltip{font-size:12.5px; line-height:1.5;}
 .tract-tooltip b{color:var(--clay);}
 
@@ -260,7 +264,7 @@ th{font-size:11.5px; text-transform:uppercase; letter-spacing:0.05em; opacity:0.
 .chart-tooltip .ct-dot{width:8px; height:8px; border-radius:50%; flex:none;}
 .chart-tooltip .ct-row{opacity:0.7; font-size:11.5px;}
 </style>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css"/>
 
 <header>
   <div class="header-inner">
@@ -345,7 +349,7 @@ th{font-size:11.5px; text-transform:uppercase; letter-spacing:0.05em; opacity:0.
     <div class="live-map-frame">
       <div class="map-toolbar">
         <div class="map-title">ATPI by census tract — citywide choropleth</div>
-        <div class="map-meta">2,325 tracts · live, zoomable · OpenStreetMap base layer</div>
+        <div class="map-meta">2,325 tracts · live, zoomable · grayscale vector base layer</div>
       </div>
       <div class="map-shell">
         <div id="atpi-map" class="live-map"></div>
@@ -365,33 +369,16 @@ th{font-size:11.5px; text-transform:uppercase; letter-spacing:0.05em; opacity:0.
 
   <div class="section map-wrap">
     <div class="map-frame">
-      <svg viewBox="0 0 420 420" style="width:100%; height:auto;" role="img" aria-label="Schematic map of relative ATPI concentration across NYC boroughs">
-        <!-- Staten Island -->
-        <path d="M40 300 Q30 340 55 375 Q90 400 120 380 Q135 350 110 320 Q80 290 40 300 Z" fill="var(--mist)" stroke="var(--border)"/>
-        <text x="75" y="345" class="borough-label" text-anchor="middle">Staten Island</text>
-
-        <!-- Brooklyn -->
-        <path d="M150 260 Q140 320 190 360 Q250 390 290 350 Q300 300 260 270 Q200 240 150 260 Z" fill="var(--clay)" fill-opacity="0.55" stroke="var(--border)"/>
-        <text x="215" y="325" class="borough-label" text-anchor="middle" fill="#fff" opacity="0.9">Brooklyn</text>
-
-        <!-- Queens -->
-        <path d="M230 150 Q210 210 250 260 Q310 300 360 260 Q390 210 360 160 Q300 120 230 150 Z" fill="var(--clay)" fill-opacity="0.65" stroke="var(--border)"/>
-        <text x="300" y="210" class="borough-label" text-anchor="middle" fill="#fff" opacity="0.9">Queens</text>
-
-        <!-- Manhattan -->
-        <path d="M175 60 Q165 120 175 190 Q185 230 205 220 Q220 150 215 90 Q205 55 175 60 Z" fill="var(--pollen)" fill-opacity="0.5" stroke="var(--border)"/>
-        <text x="192" y="145" class="borough-label" text-anchor="middle">Manhattan</text>
-
-        <!-- Bronx -->
-        <path d="M210 30 Q195 60 210 100 Q235 130 270 110 Q285 70 260 40 Q235 20 210 30 Z" fill="var(--pollen)" fill-opacity="0.4" stroke="var(--border)"/>
-        <text x="240" y="72" class="borough-label" text-anchor="middle">Bronx</text>
-      </svg>
+      <div class="map-shell">
+        <div id="borough-map" class="live-map" style="height:340px; border-radius:10px;"></div>
+        <div class="map-loading" id="borough-map-loading">Loading borough outlines…</div>
+      </div>
       <div class="legend">
         <div class="legend-swatch" style="background:var(--clay); opacity:0.6;"></div> Higher relative ATPI
         <div class="legend-swatch" style="background:var(--pollen); opacity:0.45; margin-left:10px;"></div> Moderate
         <div class="legend-swatch" style="background:var(--mist); margin-left:10px;"></div> Lower
       </div>
-      <p class="map-caption">Schematic borough-level rendering (not to scale / not a GIS map), illustrating the paper's reported pattern: many high-ATPI tracts cluster in Brooklyn and Queens, likely reflecting large mature trees, historical planting, and the built environment.</p>
+      <p class="map-caption">Borough-level rendering on a real basemap, giving a sense of scale — each borough is shaded by the paper's reported pattern rather than individual tract values (see the full tract choropleth above). Many high-ATPI tracts cluster in Brooklyn and Queens, likely reflecting large mature trees, historical planting, and the built environment. Static/non-interactive by design.</p>
     </div>
 
     <div class="map-frame">
@@ -632,7 +619,7 @@ th{font-size:11.5px; text-transform:uppercase; letter-spacing:0.05em; opacity:0.
 
 </main>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 <script>
 // tab navigation
 document.getElementById('tabs').addEventListener('click', function(e){
@@ -643,145 +630,182 @@ document.getElementById('tabs').addEventListener('click', function(e){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById(btn.dataset.page).classList.add('active');
   window.scrollTo({top:0, behavior:'instant'});
-  if(btn.dataset.page === 'atpi'){ initAtpiMap(); setTimeout(()=>{ if(atpiMap) atpiMap.invalidateSize(); }, 60); }
-  if(btn.dataset.page === 'trees'){ initTreeMap(); setTimeout(()=>{ if(treeMap) treeMap.invalidateSize(); }, 60); }
+  if(btn.dataset.page === 'atpi'){
+    initAtpiMap(); setTimeout(()=>{ if(atpiMap) atpiMap.resize(); }, 60);
+    initBoroughMap(); setTimeout(()=>{ if(boroughMap) boroughMap.resize(); }, 60);
+  }
+  if(btn.dataset.page === 'trees'){ initTreeMap(); setTimeout(()=>{ if(treeMap) treeMap.resize(); }, 60); }
 });
 
 // ---------------- Live maps: ATPI choropleth + all-tree point map ----------------
-var atpiMap = null, treeMap = null, atpiMapInited = false, treeMapInited = false;
-var NYC_CENTER = [40.7128, -73.95], NYC_ZOOM = 10;
+// Grayscale MapLibre vector basemap (CARTO Positron / Dark Matter), matched to the page's own light/dark theme.
+var atpiMap = null, treeMap = null, boroughMap = null, atpiMapInited = false, treeMapInited = false, boroughMapInited = false;
+var NYC_CENTER = [-73.95, 40.7128], NYC_ZOOM = 10; // MapLibre uses [lng, lat]
+var MAP_STYLE = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
+  ? 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json'
+  : 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json';
 
-function addBaseTiles(map){
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-    maxZoom: 19
-  }).addTo(map);
-}
-
-function atpiColor(pctile){
-  if(pctile == null) return '#cccccc';
-  if(pctile < 20) return '#e7e9df';
-  if(pctile < 40) return '#c9d3bd';
-  if(pctile < 60) return '#e6c37f';
-  if(pctile < 80) return '#d98a3d';
-  return '#a8402a';
-}
+var ATPI_FILL_COLOR = [
+  'case',
+  ['==', ['get', 'atpi_pctile'], null], '#cccccc',
+  ['step', ['get', 'atpi_pctile'],
+    '#e7e9df',
+    20, '#c9d3bd',
+    40, '#e6c37f',
+    60, '#d98a3d',
+    80, '#a8402a'
+  ]
+];
 
 function initAtpiMap(){
   if(atpiMapInited) return;
   atpiMapInited = true;
-  atpiMap = L.map('atpi-map', { scrollWheelZoom: true }).setView(NYC_CENTER, NYC_ZOOM);
-  addBaseTiles(atpiMap);
+  atpiMap = new maplibregl.Map({ container: 'atpi-map', style: MAP_STYLE, center: NYC_CENTER, zoom: NYC_ZOOM });
+  atpiMap.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
 
-  fetch('data/tracts_atpi.geojson')
-    .then(r => r.json())
-    .then(geo => {
-      L.geoJSON(geo, {
-        style: function(feature){
-          var p = feature.properties;
-          return {
-            fillColor: atpiColor(p.atpi_pctile),
-            fillOpacity: 0.72,
-            color: 'rgba(30,42,34,0.35)',
-            weight: 0.6
-          };
-        },
-        onEachFeature: function(feature, layer){
-          var p = feature.properties;
-          layer.bindTooltip(
+  atpiMap.on('load', function(){
+    fetch('data/tracts_atpi.geojson')
+      .then(r => r.json())
+      .then(geo => {
+        atpiMap.addSource('tracts', { type: 'geojson', data: geo, promoteId: 'geoid' });
+        atpiMap.addLayer({
+          id: 'tracts-fill', type: 'fill', source: 'tracts',
+          paint: { 'fill-color': ATPI_FILL_COLOR, 'fill-opacity': 0.72 }
+        });
+        atpiMap.addLayer({
+          id: 'tracts-line', type: 'line', source: 'tracts',
+          paint: {
+            'line-color': ['case', ['boolean', ['feature-state', 'hover'], false], 'rgba(30,42,34,0.7)', 'rgba(30,42,34,0.35)'],
+            'line-width': ['case', ['boolean', ['feature-state', 'hover'], false], 1.6, 0.6]
+          }
+        });
+
+        var hoveredId = null;
+        var popup = new maplibregl.Popup({ closeButton: false, closeOnClick: false, className: 'tract-popup' });
+
+        atpiMap.on('mousemove', 'tracts-fill', function(e){
+          if(!e.features.length) return;
+          atpiMap.getCanvas().style.cursor = 'pointer';
+          var f = e.features[0], p = f.properties;
+          if(hoveredId !== null) atpiMap.setFeatureState({ source: 'tracts', id: hoveredId }, { hover: false });
+          hoveredId = f.id;
+          atpiMap.setFeatureState({ source: 'tracts', id: hoveredId }, { hover: true });
+          popup.setLngLat(e.lngLat).setHTML(
             '<div class="tract-tooltip"><b>' + p.boroname + '</b> · ' + (p.ntaname || '') +
             '<br/>ATPI: <b>' + p.atpi.toLocaleString() + '</b> (percentile ' + p.atpi_pctile + ')' +
             '<br/>Trees in tract: ' + p.tree_count.toLocaleString() +
-            '<br/><span style="opacity:.6;">GEOID ' + p.geoid + '</span></div>',
-            { sticky: true }
-          );
-          layer.on('mouseover', function(){ layer.setStyle({ weight: 1.6, color: 'rgba(30,42,34,0.7)' }); });
-          layer.on('mouseout', function(){ layer.setStyle({ weight: 0.6, color: 'rgba(30,42,34,0.35)' }); });
-        }
-      }).addTo(atpiMap);
-      var el = document.getElementById('atpi-map-loading');
-      if(el) el.remove();
-    })
-    .catch(err => {
-      var el = document.getElementById('atpi-map-loading');
-      if(el) el.textContent = 'Could not load tract data (' + err.message + ')';
-    });
+            '<br/><span style="opacity:.6;">GEOID ' + p.geoid + '</span></div>'
+          ).addTo(atpiMap);
+        });
+        atpiMap.on('mouseleave', 'tracts-fill', function(){
+          atpiMap.getCanvas().style.cursor = '';
+          if(hoveredId !== null) atpiMap.setFeatureState({ source: 'tracts', id: hoveredId }, { hover: false });
+          hoveredId = null;
+          popup.remove();
+        });
+
+        var el = document.getElementById('atpi-map-loading');
+        if(el) el.remove();
+      })
+      .catch(err => {
+        var el = document.getElementById('atpi-map-loading');
+        if(el) el.textContent = 'Could not load tract data (' + err.message + ')';
+      });
+  });
+}
+
+// Small non-interactive borough-level view: real basemap + real tract geometry,
+// shaded per-borough (not per-tract) purely to give a sense of scale next to the schematic legend.
+var BOROUGH_FILL_COLOR = ['match', ['get', 'boroname'],
+  'Brooklyn', '#a8402a',
+  'Queens', '#a8402a',
+  'Manhattan', '#c97a2b',
+  'Bronx', '#c97a2b',
+  'Staten Island', '#dbe0d6',
+  '#cccccc'
+];
+var BOROUGH_FILL_OPACITY = ['match', ['get', 'boroname'],
+  'Brooklyn', 0.55,
+  'Queens', 0.65,
+  'Manhattan', 0.5,
+  'Bronx', 0.4,
+  'Staten Island', 0.5,
+  0.5
+];
+
+function initBoroughMap(){
+  if(boroughMapInited) return;
+  boroughMapInited = true;
+  boroughMap = new maplibregl.Map({
+    container: 'borough-map', style: MAP_STYLE, center: NYC_CENTER, zoom: NYC_ZOOM - 1, interactive: false
+  });
+
+  boroughMap.on('load', function(){
+    fetch('data/tracts_atpi.geojson')
+      .then(r => r.json())
+      .then(geo => {
+        boroughMap.addSource('boroughs', { type: 'geojson', data: geo });
+        boroughMap.addLayer({
+          id: 'boroughs-fill', type: 'fill', source: 'boroughs',
+          paint: { 'fill-color': BOROUGH_FILL_COLOR, 'fill-opacity': BOROUGH_FILL_OPACITY }
+        });
+        var el = document.getElementById('borough-map-loading');
+        if(el) el.remove();
+      })
+      .catch(err => {
+        var el = document.getElementById('borough-map-loading');
+        if(el) el.textContent = 'Could not load borough data (' + err.message + ')';
+      });
+  });
 }
 
 var TREE_COLORS = { 1:'#7c9a74', 2:'#9aa79b', 3:'#d9a552', 4:'#c97a2b', 5:'#a8402a' };
-
-var TreeCanvasLayer = (typeof L !== 'undefined') ? L.Layer.extend({
-  initialize: function(data){ this._data = data; },
-  onAdd: function(map){
-    this._map = map;
-    this._canvas = L.DomUtil.create('canvas', 'leaflet-tree-canvas');
-    var size = map.getSize();
-    this._canvas.width = size.x; this._canvas.height = size.y;
-    this._canvas.style.position = 'absolute';
-    map.getPanes().overlayPane.appendChild(this._canvas);
-    map.on('moveend zoomend resize', this._reset, this);
-    this._reset();
-  },
-  onRemove: function(map){
-    L.DomUtil.remove(this._canvas);
-    map.off('moveend zoomend resize', this._reset, this);
-  },
-  _reset: function(){
-    var topLeft = this._map.containerPointToLayerPoint([0, 0]);
-    L.DomUtil.setPosition(this._canvas, topLeft);
-    var size = this._map.getSize();
-    this._canvas.width = size.x; this._canvas.height = size.y;
-    this._render();
-  },
-  _render: function(){
-    var ctx = this._canvas.getContext('2d');
-    ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
-    var map = this._map;
-    var bounds = map.getBounds().pad(0.15);
-    var sw = bounds.getSouthWest(), ne = bounds.getNorthEast();
-    var zoom = map.getZoom();
-    var r = zoom >= 17 ? 3.2 : zoom >= 15 ? 2.2 : zoom >= 13 ? 1.4 : zoom >= 11 ? 0.9 : 0.55;
-    var lat = this._data.lat, lng = this._data.lng, w = this._data.weight;
-    var n = lat.length;
-    for(var i = 0; i < n; i++){
-      var la = lat[i], ln = lng[i];
-      if(la < sw.lat || la > ne.lat || ln < sw.lng || ln > ne.lng) continue;
-      var pt = map.latLngToContainerPoint([la, ln]);
-      ctx.fillStyle = TREE_COLORS[w[i]] || '#9aa79b';
-      ctx.beginPath();
-      ctx.arc(pt.x, pt.y, r, 0, 6.283185307);
-      ctx.fill();
-    }
-  }
-}) : null;
+var TREE_CIRCLE_COLOR = ['match', ['get', 'w'],
+  1, TREE_COLORS[1], 2, TREE_COLORS[2], 3, TREE_COLORS[3], 4, TREE_COLORS[4], 5, TREE_COLORS[5],
+  TREE_COLORS[2]
+];
+var TREE_CIRCLE_RADIUS = ['step', ['zoom'], 0.55, 11, 0.9, 13, 1.4, 15, 2.2, 17, 3.2];
 
 function initTreeMap(){
   if(treeMapInited) return;
   treeMapInited = true;
-  treeMap = L.map('tree-map', { scrollWheelZoom: true }).setView(NYC_CENTER, NYC_ZOOM);
-  addBaseTiles(treeMap);
+  treeMap = new maplibregl.Map({ container: 'tree-map', style: MAP_STYLE, center: NYC_CENTER, zoom: NYC_ZOOM });
+  treeMap.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
 
-  fetch('data/trees.bin')
-    .then(r => r.arrayBuffer())
-    .then(buf => {
-      var stride = 10; // 2 float32 + 2 uint8
-      var n = Math.floor(buf.byteLength / stride);
-      var dv = new DataView(buf);
-      var lat = new Float32Array(n), lng = new Float32Array(n), weight = new Uint8Array(n);
-      for(var i = 0; i < n; i++){
-        var o = i * stride;
-        lat[i] = dv.getFloat32(o, true);
-        lng[i] = dv.getFloat32(o + 4, true);
-        weight[i] = dv.getUint8(o + 8);
-      }
-      new TreeCanvasLayer({ lat: lat, lng: lng, weight: weight }).addTo(treeMap);
-      var el = document.getElementById('tree-map-loading');
-      if(el) el.remove();
-    })
-    .catch(err => {
-      var el = document.getElementById('tree-map-loading');
-      if(el) el.textContent = 'Could not load tree data (' + err.message + ')';
-    });
+  treeMap.on('load', function(){
+    fetch('data/trees.bin')
+      .then(r => r.arrayBuffer())
+      .then(buf => {
+        var stride = 10; // 2 float32 + 2 uint8
+        var n = Math.floor(buf.byteLength / stride);
+        var dv = new DataView(buf);
+        var features = new Array(n);
+        for(var i = 0; i < n; i++){
+          var o = i * stride;
+          features[i] = {
+            type: 'Feature',
+            geometry: { type: 'Point', coordinates: [dv.getFloat32(o + 4, true), dv.getFloat32(o, true)] },
+            properties: { w: dv.getUint8(o + 8) }
+          };
+        }
+        treeMap.addSource('trees', { type: 'geojson', data: { type: 'FeatureCollection', features: features }, buffer: 0 });
+        treeMap.addLayer({
+          id: 'trees-points', type: 'circle', source: 'trees',
+          paint: {
+            'circle-radius': TREE_CIRCLE_RADIUS,
+            'circle-color': TREE_CIRCLE_COLOR,
+            'circle-opacity': 0.85,
+            'circle-stroke-width': 0
+          }
+        });
+        var el = document.getElementById('tree-map-loading');
+        if(el) el.remove();
+      })
+      .catch(err => {
+        var el = document.getElementById('tree-map-loading');
+        if(el) el.textContent = 'Could not load tree data (' + err.message + ')';
+      });
+  });
 }
 
 // scenario sub-tabs
