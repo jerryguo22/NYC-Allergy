@@ -912,7 +912,7 @@ document.getElementById('stabs').addEventListener('click', function(e){
       lblY.setAttribute('text-anchor','middle'); lblY.setAttribute('class','axis-label');
       lblY.setAttribute('fill', ink);
       lblY.setAttribute('transform','rotate(-90)');
-      lblY.textContent = 'ATPI →';
+      lblY.textContent = 'ATPI (index) →';
       svg.appendChild(lblY);
 
       var caption = document.getElementById('scatter-caption');
@@ -1008,7 +1008,7 @@ document.getElementById('stabs').addEventListener('click', function(e){
     var tX = document.createElementNS(svgns,'text');
     tX.setAttribute('x', sx(v)); tX.setAttribute('y', H-pad+15);
     tX.setAttribute('text-anchor','middle'); tX.setAttribute('class','tick-label');
-    tX.setAttribute('fill', ink); tX.textContent = v;
+    tX.setAttribute('fill', ink); tX.textContent = v + '%';
     svg.appendChild(tX);
 
     var tickY = document.createElementNS(svgns,'line');
@@ -1020,7 +1020,7 @@ document.getElementById('stabs').addEventListener('click', function(e){
     var tY = document.createElementNS(svgns,'text');
     tY.setAttribute('x', pad-8); tY.setAttribute('y', sy(v)+3);
     tY.setAttribute('text-anchor','end'); tY.setAttribute('class','tick-label');
-    tY.setAttribute('fill', ink); tY.textContent = v;
+    tY.setAttribute('fill', ink); tY.textContent = v + '%';
     svg.appendChild(tY);
   });
 
