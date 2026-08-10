@@ -166,6 +166,7 @@ p{margin:0 0 14px;}
 
 /* scatter */
 .axis-label{font-size:11px; opacity:0.55;}
+.tick-label{font-size:9px; opacity:0.5; font-variant-numeric:tabular-nums;}
 
 /* bars */
 .bar-row{display:grid; grid-template-columns:120px 1fr 64px; align-items:center; gap:10px; margin-bottom:9px; font-size:13px;}
@@ -823,13 +824,26 @@ document.getElementById('stabs').addEventListener('click', function(e){
 (function(){
   var svg = document.getElementById('scatter');
   if(!svg) return;
-  var pad = 28, W = 300, H = 240;
+  var pad = 44, W = 300, H = 240;
+  function formatCompact(v){ return Math.abs(v) >= 1000 ? (v/1000).toString().replace(/\.0$/,'') + 'k' : String(v); }
 
   var css = getComputedStyle(document.documentElement);
   var moss = css.getPropertyValue('--moss').trim() || '#3f6b4a';
   var ink = css.getPropertyValue('--ink').trim() || '#1e2a22';
   var border = css.getPropertyValue('--border').trim() || 'rgba(0,0,0,.15)';
   var svgns = 'http://www.w3.org/2000/svg';
+
+  // "nice" evenly-spaced tick values (classic rounded-step algorithm), so axis units read cleanly
+  function niceTicks(min, max, count){
+    var rawStep = (max - min) / (count - 1);
+    var mag = Math.pow(10, Math.floor(Math.log10(rawStep)));
+    var norm = rawStep / mag;
+    var step = (norm < 1.5) ? 1*mag : (norm < 3) ? 2*mag : (norm < 7) ? 5*mag : 10*mag;
+    var start = Math.ceil(min/step) * step;
+    var ticks = [];
+    for (var v = start; v <= max + step*1e-6; v += step) ticks.push(Math.round(v*100)/100);
+    return ticks;
+  }
 
   fetch('data/quadrant_points.json')
     .then(function(r){ return r.json(); })
@@ -852,6 +866,31 @@ document.getElementById('stabs').addEventListener('click', function(e){
       axisY.setAttribute('stroke', border); axisY.setAttribute('stroke-width','1');
       svg.appendChild(axisY);
 
+      niceTicks(xMin, xMax, 4).forEach(function(v){
+        var tick = document.createElementNS(svgns,'line');
+        tick.setAttribute('x1', sx(v)); tick.setAttribute('x2', sx(v));
+        tick.setAttribute('y1', H-pad); tick.setAttribute('y2', H-pad+4);
+        tick.setAttribute('stroke', border); tick.setAttribute('stroke-width','1');
+        svg.appendChild(tick);
+        var t = document.createElementNS(svgns,'text');
+        t.setAttribute('x', sx(v)); t.setAttribute('y', H-pad+13);
+        t.setAttribute('text-anchor','middle'); t.setAttribute('class','tick-label');
+        t.setAttribute('fill', ink); t.textContent = v + '%';
+        svg.appendChild(t);
+      });
+      niceTicks(yMin, yMax, 4).forEach(function(v){
+        var tick = document.createElementNS(svgns,'line');
+        tick.setAttribute('x1', pad-4); tick.setAttribute('x2', pad);
+        tick.setAttribute('y1', sy(v)); tick.setAttribute('y2', sy(v));
+        tick.setAttribute('stroke', border); tick.setAttribute('stroke-width','1');
+        svg.appendChild(tick);
+        var t = document.createElementNS(svgns,'text');
+        t.setAttribute('x', pad-8); t.setAttribute('y', sy(v)+3);
+        t.setAttribute('text-anchor','end'); t.setAttribute('class','tick-label');
+        t.setAttribute('fill', ink); t.textContent = formatCompact(v);
+        svg.appendChild(t);
+      });
+
       pts.forEach(function(p){
         var c = document.createElementNS(svgns,'circle');
         c.setAttribute('cx', sx(p[0]));
@@ -869,7 +908,7 @@ document.getElementById('stabs').addEventListener('click', function(e){
       svg.appendChild(lblX);
 
       var lblY = document.createElementNS(svgns,'text');
-      lblY.setAttribute('x', -H/2); lblY.setAttribute('y', 12);
+      lblY.setAttribute('x', -H/2); lblY.setAttribute('y', 10);
       lblY.setAttribute('text-anchor','middle'); lblY.setAttribute('class','axis-label');
       lblY.setAttribute('fill', ink);
       lblY.setAttribute('transform','rotate(-90)');
@@ -893,7 +932,7 @@ document.getElementById('stabs').addEventListener('click', function(e){
 (function(){
   var svg = document.getElementById('quad-scatter');
   if(!svg) return;
-  var pad = 44, W = 480, H = 320;
+  var pad = 46, W = 480, H = 320;
   function sx(v){ return pad + (v/100) * (W-2*pad); }
   function sy(v){ return H-pad - (v/100) * (H-2*pad); }
 
@@ -955,6 +994,34 @@ document.getElementById('stabs').addEventListener('click', function(e){
     line.setAttribute('stroke', border); line.setAttribute('stroke-width','1');
     line.setAttribute('stroke-dasharray','4 4');
     svg.appendChild(line);
+  });
+
+  // percentile tick marks + numbers, 0-100, on both axes
+  var TICKS = [0, 25, 50, 75, 100];
+  TICKS.forEach(function(v){
+    var tickX = document.createElementNS(svgns,'line');
+    tickX.setAttribute('x1', sx(v)); tickX.setAttribute('x2', sx(v));
+    tickX.setAttribute('y1', H-pad); tickX.setAttribute('y2', H-pad+4);
+    tickX.setAttribute('stroke', border); tickX.setAttribute('stroke-width','1');
+    svg.appendChild(tickX);
+
+    var tX = document.createElementNS(svgns,'text');
+    tX.setAttribute('x', sx(v)); tX.setAttribute('y', H-pad+15);
+    tX.setAttribute('text-anchor','middle'); tX.setAttribute('class','tick-label');
+    tX.setAttribute('fill', ink); tX.textContent = v;
+    svg.appendChild(tX);
+
+    var tickY = document.createElementNS(svgns,'line');
+    tickY.setAttribute('x1', pad-4); tickY.setAttribute('x2', pad);
+    tickY.setAttribute('y1', sy(v)); tickY.setAttribute('y2', sy(v));
+    tickY.setAttribute('stroke', border); tickY.setAttribute('stroke-width','1');
+    svg.appendChild(tickY);
+
+    var tY = document.createElementNS(svgns,'text');
+    tY.setAttribute('x', pad-8); tY.setAttribute('y', sy(v)+3);
+    tY.setAttribute('text-anchor','end'); tY.setAttribute('class','tick-label');
+    tY.setAttribute('fill', ink); tY.textContent = v;
+    svg.appendChild(tY);
   });
 
   var lblX = document.createElementNS(svgns,'text');
