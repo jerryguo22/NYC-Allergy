@@ -384,17 +384,17 @@ th{font-size:11.5px; text-transform:uppercase; letter-spacing:0.05em; opacity:0.
     <div class="map-frame">
       <h3>Child share vs. ATPI</h3>
       <svg id="scatter" viewBox="0 0 300 240" style="width:100%; height:auto;"></svg>
-      <p class="map-caption">Each point is an illustrative census tract, generated to match the paper's reported <b>r = 0.159</b> — a weak positive correlation. Higher-child tracts trend only slightly toward higher ATPI; the citywide relationship is neither strong nor simple.</p>
+      <p class="map-caption" id="scatter-caption">Loading real tract-level data…</p>
     </div>
   </div>
 
   <div class="section">
     <h3>Socioeconomic associations with ATPI</h3>
     <div class="card">
-      <div class="bar-row"><div>Housing age</div><div class="bar-track"><div class="bar-fill" style="width:38.2%"></div></div><div class="bar-val">r = 0.382</div></div>
-      <div class="bar-row"><div>Renter share</div><div class="bar-track"><div class="bar-fill amber" style="width:24.9%"></div></div><div class="bar-val">r = −0.249</div></div>
-      <div class="bar-row"><div>Poverty rate</div><div class="bar-track"><div class="bar-fill amber" style="width:24.8%"></div></div><div class="bar-val">r = −0.248</div></div>
-      <p style="font-size:13px; opacity:0.75; margin:14px 0 0;">ATPI tracks more closely with <b>older built environments</b> — consistent with mature trees and historical planting — than with composite social vulnerability. This is a correlation, not a causal claim.</p>
+      <div class="bar-row"><div>Renter share</div><div class="bar-track"><div class="bar-fill amber" style="width:30.8%"></div></div><div class="bar-val">r = −0.308</div></div>
+      <div class="bar-row"><div>Poverty rate</div><div class="bar-track"><div class="bar-fill amber" style="width:27.2%"></div></div><div class="bar-val">r = −0.272</div></div>
+      <div class="bar-row"><div>Housing age</div><div class="bar-track"><div class="bar-fill" style="width:2.6%"></div></div><div class="bar-val">r = −0.026</div></div>
+      <p style="font-size:13px; opacity:0.75; margin:14px 0 0;">Real 2020 ACS data: ATPI tracks more closely with <b>lower renter share and lower poverty</b> — i.e. somewhat higher in more owner-occupied, higher-income tracts — than with housing age, which shows almost no relationship here (and is only reliably estimated for a subset of tracts). These are correlations, not causal claims.</p>
     </div>
   </div>
 </section>
@@ -471,37 +471,37 @@ th{font-size:11.5px; text-transform:uppercase; letter-spacing:0.05em; opacity:0.
       <div class="quad-cell lh">
         <div><div class="quad-title">Low ATPI · High Child Share</div></div>
         <div>
-          <div class="quad-stat-row"><span>Tracts</span><b>565</b></div>
-          <div class="quad-stat-row"><span>Est. children</span><b>~610,000</b></div>
-          <div class="quad-stat-row"><span>Child share</span><b>26.7%</b></div>
-          <div class="quad-stat-row"><span>Poverty rate</span><b>23.7%</b></div>
+          <div class="quad-stat-row"><span>Tracts</span><b>575</b></div>
+          <div class="quad-stat-row"><span>Est. children</span><b>~629,000</b></div>
+          <div class="quad-stat-row"><span>Child share</span><b>26.8%</b></div>
+          <div class="quad-stat-row"><span>Poverty rate</span><b>25.2%</b></div>
         </div>
       </div>
       <div class="quad-cell hh">
         <div><div class="quad-title">High ATPI · High Child Share</div></div>
         <div>
-          <div class="quad-stat-row"><span>Tracts</span><b>556</b></div>
-          <div class="quad-stat-row"><span>Est. children</span><b>~504,000</b></div>
-          <div class="quad-stat-row"><span>Child share</span><b>25.6%</b></div>
-          <div class="quad-stat-row"><span>Poverty rate</span><b>15.7%</b></div>
+          <div class="quad-stat-row"><span>Tracts</span><b>547</b></div>
+          <div class="quad-stat-row"><span>Est. children</span><b>~494,000</b></div>
+          <div class="quad-stat-row"><span>Child share</span><b>25.9%</b></div>
+          <div class="quad-stat-row"><span>Poverty rate</span><b>16.6%</b></div>
         </div>
       </div>
       <div class="quad-cell ll">
         <div><div class="quad-title">Low ATPI · Low Child Share</div></div>
         <div>
-          <div class="quad-stat-row"><span>Tracts</span><b>556</b></div>
-          <div class="quad-stat-row"><span>Est. children</span><b>~290,000</b></div>
-          <div class="quad-stat-row"><span>Child share</span><b>13.2%</b></div>
-          <div class="quad-stat-row"><span>Poverty rate</span><b>15.5%</b></div>
+          <div class="quad-stat-row"><span>Tracts</span><b>544</b></div>
+          <div class="quad-stat-row"><span>Est. children</span><b>~280,000</b></div>
+          <div class="quad-stat-row"><span>Child share</span><b>14.0%</b></div>
+          <div class="quad-stat-row"><span>Poverty rate</span><b>15.0%</b></div>
         </div>
       </div>
       <div class="quad-cell hl">
         <div><div class="quad-title">High ATPI · Low Child Share</div></div>
         <div>
-          <div class="quad-stat-row"><span>Tracts</span><b>565</b></div>
-          <div class="quad-stat-row"><span>Est. children</span><b>~309,000</b></div>
-          <div class="quad-stat-row"><span>Child share</span><b>15.0%</b></div>
-          <div class="quad-stat-row"><span>Poverty rate</span><b>11.6%</b></div>
+          <div class="quad-stat-row"><span>Tracts</span><b>575</b></div>
+          <div class="quad-stat-row"><span>Est. children</span><b>~334,000</b></div>
+          <div class="quad-stat-row"><span>Child share</span><b>15.8%</b></div>
+          <div class="quad-stat-row"><span>Poverty rate</span><b>11.3%</b></div>
         </div>
       </div>
     </div>
@@ -529,7 +529,7 @@ th{font-size:11.5px; text-transform:uppercase; letter-spacing:0.05em; opacity:0.
 
   <div class="section">
     <div class="callout">
-      <b>The most important social-justice finding —</b> high-ATPI/high-child tracts clearly deserve pollen-related priority. But <b>low-ATPI/high-child</b> tracts hold more children overall, and the highest renter share (72.9%) and poverty rate (23.7%) of any quadrant. Allocating child-health resources by ATPI alone would overlook them. Equity means matching resources to each community's actual needs — not giving every tract the same program.
+      <b>The most important social-justice finding —</b> high-ATPI/high-child tracts clearly deserve pollen-related priority. But <b>low-ATPI/high-child</b> tracts hold more children overall, and the highest renter share (75.7%) and poverty rate (25.2%) of any quadrant. Allocating child-health resources by ATPI alone would overlook them. Equity means matching resources to each community's actual needs — not giving every tract the same program.
     </div>
   </div>
 
@@ -582,7 +582,7 @@ th{font-size:11.5px; text-transform:uppercase; letter-spacing:0.05em; opacity:0.
       <ul style="margin:0; padding-left:18px; font-size:14px;">
         <li>NYC 2015 Street Tree Census — species, location, DBH, health status for 652,168 living trees</li>
         <li>Tree-pollen evidence — species classified priority / concern / uncertain / low-concern / unclassified</li>
-        <li>2020 Census Tract data — total population, child share, poverty rate, renter share, housing age</li>
+        <li>US Census Bureau ACS 2016–2020 5-year estimates by tract (B01003, B09001, S1701, B25003, B25035) — total population, child share, poverty rate, renter share, housing age. Downloaded once via the Census API and shipped as a static file; the site itself never calls the API.</li>
       </ul>
     </div>
     <div class="card">
@@ -613,7 +613,7 @@ th{font-size:11.5px; text-transform:uppercase; letter-spacing:0.05em; opacity:0.
   </div>
 
   <div class="footer-note">
-    ATPI is an indicator of potential pollen sources — not measured pollen concentration, personal exposure, or childhood allergy risk. Built as a companion site to the paper structure; boroughs and scatter data are schematic illustrations of reported statistics, not live GIS or NYC Open Data feeds.
+    ATPI is an indicator of potential pollen sources — not measured pollen concentration, personal exposure, or childhood allergy risk. Built as a companion site to the paper structure; the ATPI, tree, and borough maps and both scatter plots are computed from real per-tract data (NYC Street Tree Census + US Census Bureau ACS), not illustrative placeholders — only the "if you were a policymaker" scenario framing is editorial.
   </div>
 </section>
 
@@ -818,79 +818,73 @@ document.getElementById('stabs').addEventListener('click', function(e){
   document.querySelector('.scenario-panel[data-s="'+btn.dataset.s+'"]').classList.add('active');
 });
 
-// seeded RNG for reproducible scatter
-function mulberry32(a){
-  return function(){
-    a |= 0; a = a + 0x6D2B79F5 | 0;
-    var t = Math.imul(a ^ a >>> 15, 1 | a);
-    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
-    return ((t ^ t >>> 14) >>> 0) / 4294967296;
-  }
-}
+// child share vs ATPI mini scatter (ATPI tab) — real per-tract data, same source file as the
+// four-quadrant scatter (data/quadrant_points.json), fetched once and cached by the browser.
 (function(){
-  var rand = mulberry32(42);
-  function gauss(){
-    var u=0,v=0;
-    while(u===0) u=rand();
-    while(v===0) v=rand();
-    return Math.sqrt(-2*Math.log(u)) * Math.cos(2*Math.PI*v);
-  }
-  var n = 160, r = 0.159;
-  var pts = [];
-  for(var i=0;i<n;i++){
-    var z1 = gauss(), z2 = gauss();
-    var x = z1;
-    var y = r*z1 + Math.sqrt(1-r*r)*z2;
-    pts.push([x,y]);
-  }
   var svg = document.getElementById('scatter');
-  var pad = 28, W=300, H=240;
-  var xs = pts.map(p=>p[0]), ys = pts.map(p=>p[1]);
-  var xMin=Math.min(...xs), xMax=Math.max(...xs), yMin=Math.min(...ys), yMax=Math.max(...ys);
-  function sx(v){ return pad + (v-xMin)/(xMax-xMin) * (W-2*pad); }
-  function sy(v){ return H-pad - (v-yMin)/(yMax-yMin) * (H-2*pad); }
+  if(!svg) return;
+  var pad = 28, W = 300, H = 240;
 
   var css = getComputedStyle(document.documentElement);
   var moss = css.getPropertyValue('--moss').trim() || '#3f6b4a';
   var ink = css.getPropertyValue('--ink').trim() || '#1e2a22';
   var border = css.getPropertyValue('--border').trim() || 'rgba(0,0,0,.15)';
-
   var svgns = 'http://www.w3.org/2000/svg';
-  // axes
-  var axisX = document.createElementNS(svgns,'line');
-  axisX.setAttribute('x1', pad); axisX.setAttribute('x2', W-pad);
-  axisX.setAttribute('y1', H-pad); axisX.setAttribute('y2', H-pad);
-  axisX.setAttribute('stroke', border); axisX.setAttribute('stroke-width','1');
-  svg.appendChild(axisX);
-  var axisY = document.createElementNS(svgns,'line');
-  axisY.setAttribute('x1', pad); axisY.setAttribute('x2', pad);
-  axisY.setAttribute('y1', pad); axisY.setAttribute('y2', H-pad);
-  axisY.setAttribute('stroke', border); axisY.setAttribute('stroke-width','1');
-  svg.appendChild(axisY);
 
-  pts.forEach(function(p){
-    var c = document.createElementNS(svgns,'circle');
-    c.setAttribute('cx', sx(p[0]));
-    c.setAttribute('cy', sy(p[1]));
-    c.setAttribute('r', 2.6);
-    c.setAttribute('fill', moss);
-    c.setAttribute('fill-opacity', '0.55');
-    svg.appendChild(c);
-  });
+  fetch('data/quadrant_points.json')
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      var pts = data.tracts.map(function(t){ return [t.child_share, t.atpi]; });
+      var xs = pts.map(function(p){ return p[0]; }), ys = pts.map(function(p){ return p[1]; });
+      var xMin = Math.min.apply(null, xs), xMax = Math.max.apply(null, xs);
+      var yMin = Math.min.apply(null, ys), yMax = Math.max.apply(null, ys);
+      function sx(v){ return pad + (v-xMin)/(xMax-xMin) * (W-2*pad); }
+      function sy(v){ return H-pad - (v-yMin)/(yMax-yMin) * (H-2*pad); }
 
-  var lblX = document.createElementNS(svgns,'text');
-  lblX.setAttribute('x', W/2); lblX.setAttribute('y', H-6);
-  lblX.setAttribute('text-anchor','middle'); lblX.setAttribute('class','axis-label');
-  lblX.setAttribute('fill', ink); lblX.textContent = 'Child share (tract) →';
-  svg.appendChild(lblX);
+      var axisX = document.createElementNS(svgns,'line');
+      axisX.setAttribute('x1', pad); axisX.setAttribute('x2', W-pad);
+      axisX.setAttribute('y1', H-pad); axisX.setAttribute('y2', H-pad);
+      axisX.setAttribute('stroke', border); axisX.setAttribute('stroke-width','1');
+      svg.appendChild(axisX);
+      var axisY = document.createElementNS(svgns,'line');
+      axisY.setAttribute('x1', pad); axisY.setAttribute('x2', pad);
+      axisY.setAttribute('y1', pad); axisY.setAttribute('y2', H-pad);
+      axisY.setAttribute('stroke', border); axisY.setAttribute('stroke-width','1');
+      svg.appendChild(axisY);
 
-  var lblY = document.createElementNS(svgns,'text');
-  lblY.setAttribute('x', -H/2); lblY.setAttribute('y', 12);
-  lblY.setAttribute('text-anchor','middle'); lblY.setAttribute('class','axis-label');
-  lblY.setAttribute('fill', ink);
-  lblY.setAttribute('transform','rotate(-90)');
-  lblY.textContent = 'ATPI →';
-  svg.appendChild(lblY);
+      pts.forEach(function(p){
+        var c = document.createElementNS(svgns,'circle');
+        c.setAttribute('cx', sx(p[0]));
+        c.setAttribute('cy', sy(p[1]));
+        c.setAttribute('r', 1.8);
+        c.setAttribute('fill', moss);
+        c.setAttribute('fill-opacity', '0.4');
+        svg.appendChild(c);
+      });
+
+      var lblX = document.createElementNS(svgns,'text');
+      lblX.setAttribute('x', W/2); lblX.setAttribute('y', H-6);
+      lblX.setAttribute('text-anchor','middle'); lblX.setAttribute('class','axis-label');
+      lblX.setAttribute('fill', ink); lblX.textContent = 'Child share (tract) →';
+      svg.appendChild(lblX);
+
+      var lblY = document.createElementNS(svgns,'text');
+      lblY.setAttribute('x', -H/2); lblY.setAttribute('y', 12);
+      lblY.setAttribute('text-anchor','middle'); lblY.setAttribute('class','axis-label');
+      lblY.setAttribute('fill', ink);
+      lblY.setAttribute('transform','rotate(-90)');
+      lblY.textContent = 'ATPI →';
+      svg.appendChild(lblY);
+
+      var caption = document.getElementById('scatter-caption');
+      if(caption){
+        caption.innerHTML = 'Every one of ' + data.n.toLocaleString() + ' populated census tracts, plotted from real 2020 ACS child share and real ATPI — citywide <b>r = ' + data.pearson_r.toFixed(3) + '</b>, a weak positive correlation. Higher-child tracts trend only slightly toward higher ATPI; the citywide relationship is neither strong nor simple.';
+      }
+    })
+    .catch(function(err){
+      var caption = document.getElementById('scatter-caption');
+      if(caption) caption.textContent = 'Could not load tract data (' + err.message + ').';
+    });
 })();
 
 // quadrant scatter (Four Quadrants tab) — real per-tract data: real ATPI joined to real 2020 ACS 5-year
