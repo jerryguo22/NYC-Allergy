@@ -308,8 +308,8 @@ th{font-size:11.5px; text-transform:uppercase; letter-spacing:0.05em; opacity:0.
     <div class="stat-strip">
       <div class="stat"><div class="num">652,168</div><div class="label">living street trees citywide</div></div>
       <div class="stat"><div class="num amber">132</div><div class="label">recorded species</div></div>
-      <div class="stat"><div class="num">r = 0.159</div><div class="label">child share ↔ ATPI correlation</div></div>
-      <div class="stat"><div class="num clay">556</div><div class="label">tracts: high child share &amp; high ATPI</div></div>
+      <div class="stat"><div class="num">r = 0.095</div><div class="label">child share ↔ ATPI correlation</div></div>
+      <div class="stat"><div class="num clay">547</div><div class="label">tracts: high child share &amp; high ATPI</div></div>
     </div>
   </div>
 
@@ -524,7 +524,7 @@ th{font-size:11.5px; text-transform:uppercase; letter-spacing:0.05em; opacity:0.
         <span class="lg-item"><span class="lg-dot" style="background:var(--slate);"></span>Low ATPI · Low child share</span>
       </div>
     </div>
-    <p class="map-caption">Each point is an illustrative census tract, positioned to match this study's reported per-quadrant tract counts (556–565 each, see matrix above) and citywide median split. An illustrative synthetic distribution, not a live per-tract dataset — see the choropleth on the ATPI Map tab for real tract values.</p>
+    <p class="map-caption" id="quad-scatter-caption">Loading real tract-level data…</p>
   </div>
 
   <div class="section">
@@ -893,39 +893,42 @@ function mulberry32(a){
   svg.appendChild(lblY);
 })();
 
-// seeded quadrant scatter (Four Quadrants tab)
+// quadrant scatter (Four Quadrants tab) — real per-tract data: real ATPI joined to real 2020 ACS 5-year
+// child share (B01003/B09001) and poverty rate (S1701), downloaded once into data/quadrant_points.json.
+// No Census API calls happen from the browser; this only fetches the static local file.
 (function(){
   var svg = document.getElementById('quad-scatter');
   if(!svg) return;
-  var rand = mulberry32(7);
   var pad = 44, W = 480, H = 320;
   function sx(v){ return pad + (v/100) * (W-2*pad); }
   function sy(v){ return H-pad - (v/100) * (H-2*pad); }
-  function centerBiased(min, max){ return min + (rand()+rand())/2 * (max-min); }
 
   var css = getComputedStyle(document.documentElement);
   function cvar(name, fallback){ var v = css.getPropertyValue(name).trim(); return v || fallback; }
   var ink = cvar('--ink', '#1e2a22');
   var border = cvar('--border', 'rgba(0,0,0,.15)');
 
-  var quadrants = [
-    { key:'lh', xTint:[0,50],  yTint:[50,100], xPts:[2,48],  yPts:[52,98], count:565, tint:'--accentSoft', dot:'--moss',  label:'Low ATPI · High child share' },
-    { key:'hh', xTint:[50,100],yTint:[50,100], xPts:[52,98], yPts:[52,98], count:556, tint:'--claySoft',   dot:'--clay',  label:'High ATPI · High child share' },
-    { key:'ll', xTint:[0,50],  yTint:[0,50],   xPts:[2,48],  yPts:[2,48],  count:556, tint:'--mist',       dot:'--slate', label:'Low ATPI · Low child share' },
-    { key:'hl', xTint:[50,100],yTint:[0,50],   xPts:[52,98], yPts:[2,48],  count:565, tint:'--pollenSoft', dot:'--pollen',label:'High ATPI · Low child share' }
-  ];
+  var QUAD_META = {
+    lh: { xTint:[0,50],  yTint:[50,100], tint:'--accentSoft', dot:'--moss',  label:'Low ATPI · High child share' },
+    hh: { xTint:[50,100],yTint:[50,100], tint:'--claySoft',   dot:'--clay',  label:'High ATPI · High child share' },
+    ll: { xTint:[0,50],  yTint:[0,50],   tint:'--mist',       dot:'--slate', label:'Low ATPI · Low child share' },
+    hl: { xTint:[50,100],yTint:[0,50],   tint:'--pollenSoft', dot:'--pollen',label:'High ATPI · Low child share' }
+  };
 
   var svgns = 'http://www.w3.org/2000/svg';
 
   var wrap = svg.parentElement;
   var tip = document.getElementById('quad-scatter-tip');
-  function showTip(evt, q, xVal, yVal){
+  function showTip(evt, t){
+    var q = QUAD_META[t.quad];
     var wrapRect = wrap.getBoundingClientRect();
     tip.innerHTML =
       '<div class="ct-title"><span class="ct-dot" style="background:' + cvar(q.dot,'#888') + ';"></span>' + q.label + '</div>' +
-      '<div class="ct-row">ATPI percentile: <b>' + xVal + '</b></div>' +
-      '<div class="ct-row">Child share percentile: <b>' + yVal + '</b></div>' +
-      '<div class="ct-row" style="opacity:0.55;">Illustrative tract</div>';
+      '<div class="ct-row">' + t.boro + (t.nta ? ' · ' + t.nta : '') + '</div>' +
+      '<div class="ct-row">ATPI: <b>' + Math.round(t.atpi).toLocaleString() + '</b> (percentile ' + Math.round(t.atpi_pctile) + ')</div>' +
+      '<div class="ct-row">Child share: <b>' + t.child_share + '%</b> (percentile ' + Math.round(t.child_pctile) + ')</div>' +
+      (t.poverty_pct != null ? '<div class="ct-row">Poverty rate: <b>' + t.poverty_pct + '%</b></div>' : '') +
+      '<div class="ct-row" style="opacity:0.55;">GEOID ' + t.geoid + '</div>';
     tip.style.left = (evt.clientX - wrapRect.left) + 'px';
     tip.style.top = (evt.clientY - wrapRect.top - 10) + 'px';
     tip.classList.add('show');
@@ -933,7 +936,8 @@ function mulberry32(a){
   function hideTip(){ tip.classList.remove('show'); }
 
   // quadrant background tints
-  quadrants.forEach(function(q){
+  Object.keys(QUAD_META).forEach(function(key){
+    var q = QUAD_META[key];
     var rect = document.createElementNS(svgns,'rect');
     rect.setAttribute('x', sx(q.xTint[0]));
     rect.setAttribute('y', sy(q.yTint[1]));
@@ -959,38 +963,6 @@ function mulberry32(a){
     svg.appendChild(line);
   });
 
-  // points, one per illustrative tract, count-matched per quadrant
-  quadrants.forEach(function(q){
-    var dot = cvar(q.dot, '#888');
-    for(var i=0;i<q.count;i++){
-      var x = centerBiased(q.xPts[0], q.xPts[1]);
-      var y = centerBiased(q.yPts[0], q.yPts[1]);
-      var px = sx(x), py = sy(y);
-      var xVal = Math.round(x), yVal = Math.round(y);
-
-      var c = document.createElementNS(svgns,'circle');
-      c.setAttribute('cx', px);
-      c.setAttribute('cy', py);
-      c.setAttribute('r', 2.1);
-      c.setAttribute('fill', dot);
-      c.setAttribute('fill-opacity', '0.6');
-      svg.appendChild(c);
-
-      // larger transparent hit target — hover shows tract-level detail
-      var hit = document.createElementNS(svgns,'circle');
-      hit.setAttribute('cx', px);
-      hit.setAttribute('cy', py);
-      hit.setAttribute('r', 6);
-      hit.setAttribute('fill', 'transparent');
-      hit.style.cursor = 'pointer';
-      hit.addEventListener('mouseenter', function(){ this._c.setAttribute('r', 3.4); this._c.setAttribute('fill-opacity', '1'); }.bind(hit));
-      hit.addEventListener('mousemove', function(evt){ showTip(evt, this._q, this._xVal, this._yVal); }.bind(hit));
-      hit.addEventListener('mouseleave', function(){ this._c.setAttribute('r', 2.1); this._c.setAttribute('fill-opacity', '0.6'); hideTip(); }.bind(hit));
-      hit._c = c; hit._q = q; hit._xVal = xVal; hit._yVal = yVal;
-      svg.appendChild(hit);
-    }
-  });
-
   var lblX = document.createElementNS(svgns,'text');
   lblX.setAttribute('x', W/2); lblX.setAttribute('y', H-10);
   lblX.setAttribute('text-anchor','middle'); lblX.setAttribute('class','axis-label');
@@ -1004,5 +976,44 @@ function mulberry32(a){
   lblY.setAttribute('transform','rotate(-90)');
   lblY.textContent = 'Child share percentile →';
   svg.appendChild(lblY);
+
+  fetch('data/quadrant_points.json')
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      var caption = document.getElementById('quad-scatter-caption');
+      if(caption){
+        caption.textContent = 'Every one of ' + data.n.toLocaleString() + ' populated NYC census tracts, plotted from real data: ATPI (spatially joined to all 652,088 geolocated street trees) against child share from the 2020 ACS 5-year estimates (population under 18 ÷ total population). Citywide Pearson r = ' + data.pearson_r + '. Quadrants split at the citywide median of each axis. Hover a point for that tract\'s numbers.';
+      }
+      data.tracts.forEach(function(t){
+        var q = QUAD_META[t.quad];
+        var dot = cvar(q.dot, '#888');
+        var px = sx(t.atpi_pctile), py = sy(t.child_pctile);
+
+        var c = document.createElementNS(svgns,'circle');
+        c.setAttribute('cx', px);
+        c.setAttribute('cy', py);
+        c.setAttribute('r', 2.1);
+        c.setAttribute('fill', dot);
+        c.setAttribute('fill-opacity', '0.6');
+        svg.appendChild(c);
+
+        // larger transparent hit target — hover shows real tract-level detail
+        var hit = document.createElementNS(svgns,'circle');
+        hit.setAttribute('cx', px);
+        hit.setAttribute('cy', py);
+        hit.setAttribute('r', 6);
+        hit.setAttribute('fill', 'transparent');
+        hit.style.cursor = 'pointer';
+        hit.addEventListener('mouseenter', function(){ this._c.setAttribute('r', 3.4); this._c.setAttribute('fill-opacity', '1'); }.bind(hit));
+        hit.addEventListener('mousemove', function(evt){ showTip(evt, this._t); }.bind(hit));
+        hit.addEventListener('mouseleave', function(){ this._c.setAttribute('r', 2.1); this._c.setAttribute('fill-opacity', '0.6'); hideTip(); }.bind(hit));
+        hit._c = c; hit._t = t;
+        svg.appendChild(hit);
+      });
+    })
+    .catch(function(err){
+      var caption = document.getElementById('quad-scatter-caption');
+      if(caption) caption.textContent = 'Could not load tract data (' + err.message + ').';
+    });
 })();
 </script>
