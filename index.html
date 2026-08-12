@@ -512,17 +512,18 @@ th{font-size:11.5px; text-transform:uppercase; letter-spacing:0.05em; opacity:0.
   </div>
 
   <div class="section">
-    <h3>Every tract, plotted</h3>
+    <h3 style="margin-bottom:2px;">Every tract, plotted</h3>
+    <div style="font-size:13px; opacity:0.6; margin-bottom:14px;">Hover any point for that tract's real numbers</div>
     <div class="card">
-      <div class="map-shell">
-        <svg id="quad-scatter" viewBox="0 0 480 320" style="width:100%; height:auto; display:block;" role="img" aria-label="Scatter plot of census tracts by ATPI percentile and child-share percentile, colored by quadrant"></svg>
-        <div class="chart-tooltip" id="quad-scatter-tip"></div>
+      <div class="map-legend-row" style="padding:0 0 14px; font-size:13px; font-weight:600;">
+        <span class="lg-item"><span class="lg-dot" style="background:var(--clay);"></span><span style="color:var(--clay);">High ATPI · High child share</span></span>
+        <span class="lg-item"><span class="lg-dot" style="background:var(--pollen);"></span><span style="color:var(--pollen);">High ATPI · Low child share</span></span>
+        <span class="lg-item"><span class="lg-dot" style="background:var(--moss);"></span><span style="color:var(--moss);">Low ATPI · High child share</span></span>
+        <span class="lg-item"><span class="lg-dot" style="background:var(--slate);"></span><span style="color:var(--slate);">Low ATPI · Low child share</span></span>
       </div>
-      <div class="map-legend-row" style="padding:10px 0 0;">
-        <span class="lg-item"><span class="lg-dot" style="background:var(--clay);"></span>High ATPI · High child share</span>
-        <span class="lg-item"><span class="lg-dot" style="background:var(--pollen);"></span>High ATPI · Low child share</span>
-        <span class="lg-item"><span class="lg-dot" style="background:var(--moss);"></span>Low ATPI · High child share</span>
-        <span class="lg-item"><span class="lg-dot" style="background:var(--slate);"></span>Low ATPI · Low child share</span>
+      <div class="map-shell">
+        <svg id="quad-scatter" viewBox="0 0 720 460" style="width:100%; height:auto; display:block;" role="img" aria-label="Scatter plot of census tracts by ATPI percentile and child-share percentile, colored by quadrant"></svg>
+        <div class="chart-tooltip" id="quad-scatter-tip"></div>
       </div>
     </div>
     <p class="map-caption" id="quad-scatter-caption">Loading real tract-level data…</p>
@@ -932,7 +933,7 @@ document.getElementById('stabs').addEventListener('click', function(e){
 (function(){
   var svg = document.getElementById('quad-scatter');
   if(!svg) return;
-  var pad = 46, W = 480, H = 320;
+  var pad = 60, W = 720, H = 460;
   function sx(v){ return pad + (v/100) * (W-2*pad); }
   function sy(v){ return H-pad - (v/100) * (H-2*pad); }
 
@@ -942,10 +943,10 @@ document.getElementById('stabs').addEventListener('click', function(e){
   var border = cvar('--border', 'rgba(0,0,0,.15)');
 
   var QUAD_META = {
-    lh: { xTint:[0,50],  yTint:[50,100], tint:'--accentSoft', dot:'--moss',  label:'Low ATPI · High child share' },
-    hh: { xTint:[50,100],yTint:[50,100], tint:'--claySoft',   dot:'--clay',  label:'High ATPI · High child share' },
-    ll: { xTint:[0,50],  yTint:[0,50],   tint:'--mist',       dot:'--slate', label:'Low ATPI · Low child share' },
-    hl: { xTint:[50,100],yTint:[0,50],   tint:'--pollenSoft', dot:'--pollen',label:'High ATPI · Low child share' }
+    lh: { dot:'--moss',  label:'Low ATPI · High child share' },
+    hh: { dot:'--clay',  label:'High ATPI · High child share' },
+    ll: { dot:'--slate', label:'Low ATPI · Low child share' },
+    hl: { dot:'--pollen',label:'High ATPI · Low child share' }
   };
 
   var svgns = 'http://www.w3.org/2000/svg';
@@ -968,33 +969,54 @@ document.getElementById('stabs').addEventListener('click', function(e){
   }
   function hideTip(){ tip.classList.remove('show'); }
 
-  // quadrant background tints
-  Object.keys(QUAD_META).forEach(function(key){
-    var q = QUAD_META[key];
-    var rect = document.createElementNS(svgns,'rect');
-    rect.setAttribute('x', sx(q.xTint[0]));
-    rect.setAttribute('y', sy(q.yTint[1]));
-    rect.setAttribute('width', sx(q.xTint[1]) - sx(q.xTint[0]));
-    rect.setAttribute('height', sy(q.yTint[0]) - sy(q.yTint[1]));
-    rect.setAttribute('fill', cvar(q.tint, '#eee'));
-    svg.appendChild(rect);
-  });
-
-  // frame + median gridlines
+  // frame
   var frame = document.createElementNS(svgns,'rect');
   frame.setAttribute('x', pad); frame.setAttribute('y', pad);
   frame.setAttribute('width', W-2*pad); frame.setAttribute('height', H-2*pad);
   frame.setAttribute('fill', 'none'); frame.setAttribute('stroke', border); frame.setAttribute('stroke-width','1');
   svg.appendChild(frame);
 
-  [ [sx(50),pad,sx(50),H-pad], [pad,sy(50),W-pad,sy(50)] ].forEach(function(c){
-    var line = document.createElementNS(svgns,'line');
-    line.setAttribute('x1', c[0]); line.setAttribute('y1', c[1]);
-    line.setAttribute('x2', c[2]); line.setAttribute('y2', c[3]);
-    line.setAttribute('stroke', border); line.setAttribute('stroke-width','1');
-    line.setAttribute('stroke-dasharray','4 4');
-    svg.appendChild(line);
+  // light full-width/height gridlines at interior ticks (edges are the frame, 50 is the bold median line below)
+  [25, 75].forEach(function(v){
+    var gx = document.createElementNS(svgns,'line');
+    gx.setAttribute('x1', sx(v)); gx.setAttribute('x2', sx(v));
+    gx.setAttribute('y1', pad); gx.setAttribute('y2', H-pad);
+    gx.setAttribute('stroke', border); gx.setAttribute('stroke-width','1');
+    svg.appendChild(gx);
+    var gy = document.createElementNS(svgns,'line');
+    gy.setAttribute('x1', pad); gy.setAttribute('x2', W-pad);
+    gy.setAttribute('y1', sy(v)); gy.setAttribute('y2', sy(v));
+    gy.setAttribute('stroke', border); gy.setAttribute('stroke-width','1');
+    svg.appendChild(gy);
   });
+
+  // bold labeled median (threshold) lines — this is where the four quadrants actually split
+  var medianX = document.createElementNS(svgns,'line');
+  medianX.setAttribute('x1', sx(50)); medianX.setAttribute('x2', sx(50));
+  medianX.setAttribute('y1', pad); medianX.setAttribute('y2', H-pad);
+  medianX.setAttribute('stroke', ink); medianX.setAttribute('stroke-width','2.5');
+  medianX.setAttribute('stroke-dasharray','7 5');
+  svg.appendChild(medianX);
+  var medianY = document.createElementNS(svgns,'line');
+  medianY.setAttribute('x1', pad); medianY.setAttribute('x2', W-pad);
+  medianY.setAttribute('y1', sy(50)); medianY.setAttribute('y2', sy(50));
+  medianY.setAttribute('stroke', ink); medianY.setAttribute('stroke-width','2.5');
+  medianY.setAttribute('stroke-dasharray','7 5');
+  svg.appendChild(medianY);
+
+  var medianXLabel = document.createElementNS(svgns,'text');
+  medianXLabel.setAttribute('x', sx(50)); medianXLabel.setAttribute('y', pad-10);
+  medianXLabel.setAttribute('text-anchor','middle'); medianXLabel.setAttribute('class','tick-label');
+  medianXLabel.setAttribute('fill', ink); medianXLabel.setAttribute('font-weight','700');
+  medianXLabel.textContent = 'median 50%';
+  svg.appendChild(medianXLabel);
+
+  var medianYLabel = document.createElementNS(svgns,'text');
+  medianYLabel.setAttribute('x', W-6); medianYLabel.setAttribute('y', sy(50)-6);
+  medianYLabel.setAttribute('text-anchor','end'); medianYLabel.setAttribute('class','tick-label');
+  medianYLabel.setAttribute('fill', ink); medianYLabel.setAttribute('font-weight','700');
+  medianYLabel.textContent = 'median 50%';
+  svg.appendChild(medianYLabel);
 
   // percentile tick marks + numbers, 0-100, on both axes
   var TICKS = [0, 25, 50, 75, 100];
@@ -1006,7 +1028,7 @@ document.getElementById('stabs').addEventListener('click', function(e){
     svg.appendChild(tickX);
 
     var tX = document.createElementNS(svgns,'text');
-    tX.setAttribute('x', sx(v)); tX.setAttribute('y', H-pad+15);
+    tX.setAttribute('x', sx(v)); tX.setAttribute('y', H-pad+17);
     tX.setAttribute('text-anchor','middle'); tX.setAttribute('class','tick-label');
     tX.setAttribute('fill', ink); tX.textContent = v + '%';
     svg.appendChild(tX);
@@ -1025,13 +1047,13 @@ document.getElementById('stabs').addEventListener('click', function(e){
   });
 
   var lblX = document.createElementNS(svgns,'text');
-  lblX.setAttribute('x', W/2); lblX.setAttribute('y', H-10);
+  lblX.setAttribute('x', W/2); lblX.setAttribute('y', H-14);
   lblX.setAttribute('text-anchor','middle'); lblX.setAttribute('class','axis-label');
   lblX.setAttribute('fill', ink); lblX.textContent = 'ATPI percentile →';
   svg.appendChild(lblX);
 
   var lblY = document.createElementNS(svgns,'text');
-  lblY.setAttribute('x', -H/2); lblY.setAttribute('y', 14);
+  lblY.setAttribute('x', -H/2); lblY.setAttribute('y', 16);
   lblY.setAttribute('text-anchor','middle'); lblY.setAttribute('class','axis-label');
   lblY.setAttribute('fill', ink);
   lblY.setAttribute('transform','rotate(-90)');
@@ -1053,21 +1075,21 @@ document.getElementById('stabs').addEventListener('click', function(e){
         var c = document.createElementNS(svgns,'circle');
         c.setAttribute('cx', px);
         c.setAttribute('cy', py);
-        c.setAttribute('r', 2.1);
+        c.setAttribute('r', 3.2);
         c.setAttribute('fill', dot);
-        c.setAttribute('fill-opacity', '0.6');
+        c.setAttribute('fill-opacity', '0.55');
         svg.appendChild(c);
 
         // larger transparent hit target — hover shows real tract-level detail
         var hit = document.createElementNS(svgns,'circle');
         hit.setAttribute('cx', px);
         hit.setAttribute('cy', py);
-        hit.setAttribute('r', 6);
+        hit.setAttribute('r', 7);
         hit.setAttribute('fill', 'transparent');
         hit.style.cursor = 'pointer';
-        hit.addEventListener('mouseenter', function(){ this._c.setAttribute('r', 3.4); this._c.setAttribute('fill-opacity', '1'); }.bind(hit));
+        hit.addEventListener('mouseenter', function(){ this._c.setAttribute('r', 4.6); this._c.setAttribute('fill-opacity', '1'); }.bind(hit));
         hit.addEventListener('mousemove', function(evt){ showTip(evt, this._t); }.bind(hit));
-        hit.addEventListener('mouseleave', function(){ this._c.setAttribute('r', 2.1); this._c.setAttribute('fill-opacity', '0.6'); hideTip(); }.bind(hit));
+        hit.addEventListener('mouseleave', function(){ this._c.setAttribute('r', 3.2); this._c.setAttribute('fill-opacity', '0.55'); hideTip(); }.bind(hit));
         hit._c = c; hit._t = t;
         svg.appendChild(hit);
       });
