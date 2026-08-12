@@ -933,9 +933,7 @@ document.getElementById('stabs').addEventListener('click', function(e){
 (function(){
   var svg = document.getElementById('quad-scatter');
   if(!svg) return;
-  var pad = 60, W = 720, H = 460;
-  function sx(v){ return pad + (v/100) * (W-2*pad); }
-  function sy(v){ return H-pad - (v/100) * (H-2*pad); }
+  var pad = 64, W = 720, H = 460;
 
   var css = getComputedStyle(document.documentElement);
   function cvar(name, fallback){ var v = css.getPropertyValue(name).trim(); return v || fallback; }
@@ -969,108 +967,144 @@ document.getElementById('stabs').addEventListener('click', function(e){
   }
   function hideTip(){ tip.classList.remove('show'); }
 
-  // frame
-  var frame = document.createElementNS(svgns,'rect');
-  frame.setAttribute('x', pad); frame.setAttribute('y', pad);
-  frame.setAttribute('width', W-2*pad); frame.setAttribute('height', H-2*pad);
-  frame.setAttribute('fill', 'none'); frame.setAttribute('stroke', border); frame.setAttribute('stroke-width','1');
-  svg.appendChild(frame);
-
-  // light full-width/height gridlines at interior ticks (edges are the frame, 50 is the bold median line below)
-  [25, 75].forEach(function(v){
-    var gx = document.createElementNS(svgns,'line');
-    gx.setAttribute('x1', sx(v)); gx.setAttribute('x2', sx(v));
-    gx.setAttribute('y1', pad); gx.setAttribute('y2', H-pad);
-    gx.setAttribute('stroke', border); gx.setAttribute('stroke-width','1');
-    svg.appendChild(gx);
-    var gy = document.createElementNS(svgns,'line');
-    gy.setAttribute('x1', pad); gy.setAttribute('x2', W-pad);
-    gy.setAttribute('y1', sy(v)); gy.setAttribute('y2', sy(v));
-    gy.setAttribute('stroke', border); gy.setAttribute('stroke-width','1');
-    svg.appendChild(gy);
-  });
-
-  // bold labeled median (threshold) lines — this is where the four quadrants actually split
-  var medianX = document.createElementNS(svgns,'line');
-  medianX.setAttribute('x1', sx(50)); medianX.setAttribute('x2', sx(50));
-  medianX.setAttribute('y1', pad); medianX.setAttribute('y2', H-pad);
-  medianX.setAttribute('stroke', ink); medianX.setAttribute('stroke-width','2.5');
-  medianX.setAttribute('stroke-dasharray','7 5');
-  svg.appendChild(medianX);
-  var medianY = document.createElementNS(svgns,'line');
-  medianY.setAttribute('x1', pad); medianY.setAttribute('x2', W-pad);
-  medianY.setAttribute('y1', sy(50)); medianY.setAttribute('y2', sy(50));
-  medianY.setAttribute('stroke', ink); medianY.setAttribute('stroke-width','2.5');
-  medianY.setAttribute('stroke-dasharray','7 5');
-  svg.appendChild(medianY);
-
-  var medianXLabel = document.createElementNS(svgns,'text');
-  medianXLabel.setAttribute('x', sx(50)); medianXLabel.setAttribute('y', pad-10);
-  medianXLabel.setAttribute('text-anchor','middle'); medianXLabel.setAttribute('class','tick-label');
-  medianXLabel.setAttribute('fill', ink); medianXLabel.setAttribute('font-weight','700');
-  medianXLabel.textContent = 'median 50%';
-  svg.appendChild(medianXLabel);
-
-  var medianYLabel = document.createElementNS(svgns,'text');
-  medianYLabel.setAttribute('x', W-6); medianYLabel.setAttribute('y', sy(50)-6);
-  medianYLabel.setAttribute('text-anchor','end'); medianYLabel.setAttribute('class','tick-label');
-  medianYLabel.setAttribute('fill', ink); medianYLabel.setAttribute('font-weight','700');
-  medianYLabel.textContent = 'median 50%';
-  svg.appendChild(medianYLabel);
-
-  // percentile tick marks + numbers, 0-100, on both axes
-  var TICKS = [0, 25, 50, 75, 100];
-  TICKS.forEach(function(v){
-    var tickX = document.createElementNS(svgns,'line');
-    tickX.setAttribute('x1', sx(v)); tickX.setAttribute('x2', sx(v));
-    tickX.setAttribute('y1', H-pad); tickX.setAttribute('y2', H-pad+4);
-    tickX.setAttribute('stroke', border); tickX.setAttribute('stroke-width','1');
-    svg.appendChild(tickX);
-
-    var tX = document.createElementNS(svgns,'text');
-    tX.setAttribute('x', sx(v)); tX.setAttribute('y', H-pad+17);
-    tX.setAttribute('text-anchor','middle'); tX.setAttribute('class','tick-label');
-    tX.setAttribute('fill', ink); tX.textContent = v + '%';
-    svg.appendChild(tX);
-
-    var tickY = document.createElementNS(svgns,'line');
-    tickY.setAttribute('x1', pad-4); tickY.setAttribute('x2', pad);
-    tickY.setAttribute('y1', sy(v)); tickY.setAttribute('y2', sy(v));
-    tickY.setAttribute('stroke', border); tickY.setAttribute('stroke-width','1');
-    svg.appendChild(tickY);
-
-    var tY = document.createElementNS(svgns,'text');
-    tY.setAttribute('x', pad-8); tY.setAttribute('y', sy(v)+3);
-    tY.setAttribute('text-anchor','end'); tY.setAttribute('class','tick-label');
-    tY.setAttribute('fill', ink); tY.textContent = v + '%';
-    svg.appendChild(tY);
-  });
-
-  var lblX = document.createElementNS(svgns,'text');
-  lblX.setAttribute('x', W/2); lblX.setAttribute('y', H-14);
-  lblX.setAttribute('text-anchor','middle'); lblX.setAttribute('class','axis-label');
-  lblX.setAttribute('fill', ink); lblX.textContent = 'ATPI percentile →';
-  svg.appendChild(lblX);
-
-  var lblY = document.createElementNS(svgns,'text');
-  lblY.setAttribute('x', -H/2); lblY.setAttribute('y', 16);
-  lblY.setAttribute('text-anchor','middle'); lblY.setAttribute('class','axis-label');
-  lblY.setAttribute('fill', ink);
-  lblY.setAttribute('transform','rotate(-90)');
-  lblY.textContent = 'Child share percentile →';
-  svg.appendChild(lblY);
+  // ATPI is heavily right-skewed (many low-tree tracts, a few very high ones) and a handful of
+  // tracts have zero trees — floor those at 1 so log10 stays defined, then plot on a log scale.
+  var ATPI_FLOOR = 1;
+  function logAtpi(v){ return Math.log10(Math.max(v, ATPI_FLOOR)); }
+  function median(arr){ var s = arr.slice().sort(function(a,b){ return a-b; }); var n = s.length; return n % 2 ? s[(n-1)/2] : (s[n/2-1]+s[n/2])/2; }
+  function niceTicks(min, max, count){
+    var rawStep = (max - min) / (count - 1);
+    var mag = Math.pow(10, Math.floor(Math.log10(rawStep)));
+    var norm = rawStep / mag;
+    var step = (norm < 1.5) ? 1*mag : (norm < 3) ? 2*mag : (norm < 7) ? 5*mag : 10*mag;
+    var start = Math.ceil(min/step) * step;
+    var ticks = [];
+    for (var v = start; v <= max + step*1e-6; v += step) ticks.push(Math.round(v*100)/100);
+    return ticks;
+  }
 
   fetch('data/quadrant_points.json')
     .then(function(r){ return r.json(); })
     .then(function(data){
+      var tracts = data.tracts;
+      var xVals = tracts.map(function(t){ return t.child_share; });
+      var yVals = tracts.map(function(t){ return logAtpi(t.atpi); });
+      var xDomain = [0, Math.max.apply(null, xVals) * 1.04];
+      var yDomain = [0, Math.max.apply(null, yVals) * 1.04];
+      function sx(v){ return pad + (v - xDomain[0])/(xDomain[1]-xDomain[0]) * (W-2*pad); }
+      function sy(v){ return H-pad - (v - yDomain[0])/(yDomain[1]-yDomain[0]) * (H-2*pad); }
+
+      // real citywide medians — the actual quadrant-split thresholds (quad was assigned by
+      // percentile>=50, which is equivalent to value>=median, so this lines up exactly)
+      var xMedian = median(xVals);
+      var atpiMedian = median(tracts.map(function(t){ return t.atpi; }));
+      var yMedian = logAtpi(atpiMedian);
+
+      var xTicks = niceTicks(xDomain[0], xDomain[1], 5);
+      var maxAtpiRaw = Math.max.apply(null, tracts.map(function(t){ return t.atpi; }));
+      var yTicks = [];
+      for (var k = 0; Math.pow(10,k) <= maxAtpiRaw; k++) yTicks.push(Math.pow(10,k));
+
+      // frame
+      var frame = document.createElementNS(svgns,'rect');
+      frame.setAttribute('x', pad); frame.setAttribute('y', pad);
+      frame.setAttribute('width', W-2*pad); frame.setAttribute('height', H-2*pad);
+      frame.setAttribute('fill', 'none'); frame.setAttribute('stroke', border); frame.setAttribute('stroke-width','1');
+      svg.appendChild(frame);
+
+      // light gridlines at every tick
+      xTicks.forEach(function(v){
+        var g = document.createElementNS(svgns,'line');
+        g.setAttribute('x1', sx(v)); g.setAttribute('x2', sx(v));
+        g.setAttribute('y1', pad); g.setAttribute('y2', H-pad);
+        g.setAttribute('stroke', border); g.setAttribute('stroke-width','1');
+        svg.appendChild(g);
+      });
+      yTicks.forEach(function(v){
+        var g = document.createElementNS(svgns,'line');
+        g.setAttribute('x1', pad); g.setAttribute('x2', W-pad);
+        g.setAttribute('y1', sy(logAtpi(v))); g.setAttribute('y2', sy(logAtpi(v)));
+        g.setAttribute('stroke', border); g.setAttribute('stroke-width','1');
+        svg.appendChild(g);
+      });
+
+      // bold labeled median (threshold) lines — where the four quadrants actually split, in real units
+      var medianX = document.createElementNS(svgns,'line');
+      medianX.setAttribute('x1', sx(xMedian)); medianX.setAttribute('x2', sx(xMedian));
+      medianX.setAttribute('y1', pad); medianX.setAttribute('y2', H-pad);
+      medianX.setAttribute('stroke', ink); medianX.setAttribute('stroke-width','2.5');
+      medianX.setAttribute('stroke-dasharray','7 5');
+      svg.appendChild(medianX);
+      var medianY = document.createElementNS(svgns,'line');
+      medianY.setAttribute('x1', pad); medianY.setAttribute('x2', W-pad);
+      medianY.setAttribute('y1', sy(yMedian)); medianY.setAttribute('y2', sy(yMedian));
+      medianY.setAttribute('stroke', ink); medianY.setAttribute('stroke-width','2.5');
+      medianY.setAttribute('stroke-dasharray','7 5');
+      svg.appendChild(medianY);
+
+      var medianXLabel = document.createElementNS(svgns,'text');
+      medianXLabel.setAttribute('x', sx(xMedian)); medianXLabel.setAttribute('y', pad-10);
+      medianXLabel.setAttribute('text-anchor','middle'); medianXLabel.setAttribute('class','tick-label');
+      medianXLabel.setAttribute('fill', ink); medianXLabel.setAttribute('font-weight','700');
+      medianXLabel.textContent = 'median ' + xMedian.toFixed(1) + '%';
+      svg.appendChild(medianXLabel);
+
+      var medianYLabel = document.createElementNS(svgns,'text');
+      medianYLabel.setAttribute('x', W-6); medianYLabel.setAttribute('y', sy(yMedian)-6);
+      medianYLabel.setAttribute('text-anchor','end'); medianYLabel.setAttribute('class','tick-label');
+      medianYLabel.setAttribute('fill', ink); medianYLabel.setAttribute('font-weight','700');
+      medianYLabel.textContent = 'median ' + Math.round(atpiMedian).toLocaleString();
+      svg.appendChild(medianYLabel);
+
+      // tick marks + numbers
+      xTicks.forEach(function(v){
+        var tick = document.createElementNS(svgns,'line');
+        tick.setAttribute('x1', sx(v)); tick.setAttribute('x2', sx(v));
+        tick.setAttribute('y1', H-pad); tick.setAttribute('y2', H-pad+4);
+        tick.setAttribute('stroke', border); tick.setAttribute('stroke-width','1');
+        svg.appendChild(tick);
+        var t = document.createElementNS(svgns,'text');
+        t.setAttribute('x', sx(v)); t.setAttribute('y', H-pad+17);
+        t.setAttribute('text-anchor','middle'); t.setAttribute('class','tick-label');
+        t.setAttribute('fill', ink); t.textContent = v + '%';
+        svg.appendChild(t);
+      });
+      yTicks.forEach(function(v){
+        var tick = document.createElementNS(svgns,'line');
+        tick.setAttribute('x1', pad-4); tick.setAttribute('x2', pad);
+        tick.setAttribute('y1', sy(logAtpi(v))); tick.setAttribute('y2', sy(logAtpi(v)));
+        tick.setAttribute('stroke', border); tick.setAttribute('stroke-width','1');
+        svg.appendChild(tick);
+        var t = document.createElementNS(svgns,'text');
+        t.setAttribute('x', pad-8); t.setAttribute('y', sy(logAtpi(v))+3);
+        t.setAttribute('text-anchor','end'); t.setAttribute('class','tick-label');
+        t.setAttribute('fill', ink); t.textContent = v.toLocaleString();
+        svg.appendChild(t);
+      });
+
+      var lblX = document.createElementNS(svgns,'text');
+      lblX.setAttribute('x', W/2); lblX.setAttribute('y', H-14);
+      lblX.setAttribute('text-anchor','middle'); lblX.setAttribute('class','axis-label');
+      lblX.setAttribute('fill', ink); lblX.textContent = 'Child share →';
+      svg.appendChild(lblX);
+
+      var lblY = document.createElementNS(svgns,'text');
+      lblY.setAttribute('x', -H/2); lblY.setAttribute('y', 16);
+      lblY.setAttribute('text-anchor','middle'); lblY.setAttribute('class','axis-label');
+      lblY.setAttribute('fill', ink);
+      lblY.setAttribute('transform','rotate(-90)');
+      lblY.textContent = 'ATPI (log scale) →';
+      svg.appendChild(lblY);
+
       var caption = document.getElementById('quad-scatter-caption');
       if(caption){
-        caption.textContent = 'Every one of ' + data.n.toLocaleString() + ' populated NYC census tracts, plotted from real data: ATPI (spatially joined to all 652,088 geolocated street trees) against child share from the 2020 ACS 5-year estimates (population under 18 ÷ total population). Citywide Pearson r = ' + data.pearson_r + '. Quadrants split at the citywide median of each axis. Hover a point for that tract\'s numbers.';
+        caption.textContent = 'Every one of ' + data.n.toLocaleString() + ' populated NYC census tracts, plotted from real data: child share from the 2020 ACS 5-year estimates (population under 18 ÷ total population) against ATPI (spatially joined to all 652,088 geolocated street trees), shown on a log scale since ATPI is heavily right-skewed. Citywide Pearson r = ' + data.pearson_r + '. Quadrants split at the citywide median of each axis — child share ' + xMedian.toFixed(1) + '%, ATPI ' + Math.round(atpiMedian).toLocaleString() + '. Hover a point for that tract\'s numbers.';
       }
-      data.tracts.forEach(function(t){
+
+      tracts.forEach(function(t){
         var q = QUAD_META[t.quad];
         var dot = cvar(q.dot, '#888');
-        var px = sx(t.atpi_pctile), py = sy(t.child_pctile);
+        var px = sx(t.child_share), py = sy(logAtpi(t.atpi));
 
         var c = document.createElementNS(svgns,'circle');
         c.setAttribute('cx', px);
