@@ -524,10 +524,10 @@ th{font-size:11.5px; text-transform:uppercase; letter-spacing:0.05em; opacity:0.
     <div style="font-size:13px; opacity:0.6; margin-bottom:14px;">Hover any point for that tract's real numbers</div>
     <div class="card">
       <div class="map-legend-row" style="padding:0 0 14px; font-size:13px; font-weight:600;">
-        <span class="lg-item"><span class="lg-dot" style="background:var(--clay);"></span><span style="color:var(--clay);">High ATPI · High child share</span></span>
-        <span class="lg-item"><span class="lg-dot" style="background:var(--pollen);"></span><span style="color:var(--pollen);">High ATPI · Low child share</span></span>
-        <span class="lg-item"><span class="lg-dot" style="background:var(--moss);"></span><span style="color:var(--moss);">Low ATPI · High child share</span></span>
-        <span class="lg-item"><span class="lg-dot" style="background:var(--slate);"></span><span style="color:var(--slate);">Low ATPI · Low child share</span></span>
+        <span class="lg-item"><svg width="12" height="12" viewBox="0 0 12 12"><circle cx="6" cy="6" r="5" fill="var(--clay)"/></svg><span style="color:var(--clay);">High ATPI · High child share</span></span>
+        <span class="lg-item"><svg width="12" height="12" viewBox="0 0 12 12"><polygon points="6,1 11,10 1,10" fill="var(--pollen)"/></svg><span style="color:var(--pollen);">High ATPI · Low child share</span></span>
+        <span class="lg-item"><svg width="12" height="12" viewBox="0 0 12 12"><rect x="1.5" y="1.5" width="9" height="9" fill="var(--moss)"/></svg><span style="color:var(--moss);">Low ATPI · High child share</span></span>
+        <span class="lg-item"><svg width="12" height="12" viewBox="0 0 12 12"><polygon points="6,1 11,6 6,11 1,6" fill="var(--slate)"/></svg><span style="color:var(--slate);">Low ATPI · Low child share</span></span>
       </div>
       <div class="map-shell">
         <svg id="quad-scatter" viewBox="0 0 720 460" style="width:100%; height:auto; display:block;" role="img" aria-label="Scatter plot of census tracts by ATPI percentile and child-share percentile, colored by quadrant"></svg>
@@ -931,7 +931,7 @@ document.getElementById('stabs').addEventListener('click', function(e){
       lblY.setAttribute('text-anchor','middle'); lblY.setAttribute('class','axis-label');
       lblY.setAttribute('fill', ink);
       lblY.setAttribute('transform','rotate(-90)');
-      lblY.textContent = 'ln(1 + ATPI) →';
+      lblY.textContent = 'ATPI (log)';
       svg.appendChild(lblY);
 
       var caption = document.getElementById('scatter-caption');
@@ -959,13 +959,49 @@ document.getElementById('stabs').addEventListener('click', function(e){
   var border = cvar('--border', 'rgba(0,0,0,.15)');
 
   var QUAD_META = {
-    lh: { dot:'--moss',  label:'Low ATPI · High child share' },
-    hh: { dot:'--clay',  label:'High ATPI · High child share' },
-    ll: { dot:'--slate', label:'Low ATPI · Low child share' },
-    hl: { dot:'--pollen',label:'High ATPI · Low child share' }
+    lh: { dot:'--moss',  label:'Low ATPI · High child share', shape:'square' },
+    hh: { dot:'--clay',  label:'High ATPI · High child share', shape:'circle' },
+    ll: { dot:'--slate', label:'Low ATPI · Low child share', shape:'diamond' },
+    hl: { dot:'--pollen',label:'High ATPI · Low child share', shape:'triangle' }
   };
 
   var svgns = 'http://www.w3.org/2000/svg';
+
+  // one shape per quadrant, in addition to color, so quadrant membership doesn't rely on color alone
+  function makeShape(type, cx, cy, r, fill, opacity){
+    var el = document.createElementNS(svgns, type === 'circle' ? 'circle' : type === 'square' ? 'rect' : 'polygon');
+    el._cx = cx; el._cy = cy; el._type = type;
+    el.setAttribute('fill', fill);
+    el.setAttribute('fill-opacity', opacity);
+    setShapeSize(el, r);
+    return el;
+  }
+  function setShapeSize(el, r){
+    var cx = el._cx, cy = el._cy;
+    if(el._type === 'circle'){
+      el.setAttribute('cx', cx); el.setAttribute('cy', cy);
+      el.setAttribute('r', r);
+    } else if(el._type === 'square'){
+      var s = r * 1.7;
+      el.setAttribute('x', cx - s/2); el.setAttribute('y', cy - s/2);
+      el.setAttribute('width', s); el.setAttribute('height', s);
+    } else if(el._type === 'triangle'){
+      var s = r * 2.2;
+      el.setAttribute('points',
+        cx + ',' + (cy - s*0.62) + ' ' +
+        (cx + s*0.58) + ',' + (cy + s*0.42) + ' ' +
+        (cx - s*0.58) + ',' + (cy + s*0.42)
+      );
+    } else if(el._type === 'diamond'){
+      var s = r * 1.7;
+      el.setAttribute('points',
+        cx + ',' + (cy - s) + ' ' +
+        (cx + s) + ',' + cy + ' ' +
+        cx + ',' + (cy + s) + ' ' +
+        (cx - s) + ',' + cy
+      );
+    }
+  }
 
   var wrap = svg.parentElement;
   var tip = document.getElementById('quad-scatter-tip');
@@ -1110,7 +1146,7 @@ document.getElementById('stabs').addEventListener('click', function(e){
       lblY.setAttribute('text-anchor','middle'); lblY.setAttribute('class','axis-label');
       lblY.setAttribute('fill', ink);
       lblY.setAttribute('transform','rotate(-90)');
-      lblY.textContent = 'ln(1 + ATPI) →';
+      lblY.textContent = 'ATPI (log)';
       svg.appendChild(lblY);
 
       var caption = document.getElementById('quad-scatter-caption');
@@ -1123,12 +1159,7 @@ document.getElementById('stabs').addEventListener('click', function(e){
         var dot = cvar(q.dot, '#888');
         var px = sx(t.child_share), py = sy(logAtpi(t.atpi));
 
-        var c = document.createElementNS(svgns,'circle');
-        c.setAttribute('cx', px);
-        c.setAttribute('cy', py);
-        c.setAttribute('r', 3.2);
-        c.setAttribute('fill', dot);
-        c.setAttribute('fill-opacity', '0.55');
+        var c = makeShape(q.shape, px, py, 3.2, dot, 0.55);
         svg.appendChild(c);
 
         // larger transparent hit target — hover shows real tract-level detail
@@ -1138,9 +1169,9 @@ document.getElementById('stabs').addEventListener('click', function(e){
         hit.setAttribute('r', 7);
         hit.setAttribute('fill', 'transparent');
         hit.style.cursor = 'pointer';
-        hit.addEventListener('mouseenter', function(){ this._c.setAttribute('r', 4.6); this._c.setAttribute('fill-opacity', '1'); }.bind(hit));
+        hit.addEventListener('mouseenter', function(){ setShapeSize(this._c, 4.6); this._c.setAttribute('fill-opacity', '1'); }.bind(hit));
         hit.addEventListener('mousemove', function(evt){ showTip(evt, this._t); }.bind(hit));
-        hit.addEventListener('mouseleave', function(){ this._c.setAttribute('r', 3.2); this._c.setAttribute('fill-opacity', '0.55'); hideTip(); }.bind(hit));
+        hit.addEventListener('mouseleave', function(){ setShapeSize(this._c, 3.2); this._c.setAttribute('fill-opacity', '0.55'); hideTip(); }.bind(hit));
         hit._c = c; hit._t = t;
         svg.appendChild(hit);
       });
