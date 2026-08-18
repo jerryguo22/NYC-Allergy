@@ -410,22 +410,21 @@ th{font-size:11.5px; text-transform:uppercase; letter-spacing:0.05em; opacity:0.
     <div class="live-map-frame">
       <div class="map-toolbar">
         <div class="map-title">Every living street tree in New York City</div>
-        <div class="map-meta">652,088 mapped points · colored by allergenic-evidence tier</div>
+        <div class="map-meta">652,173 real trees · hover any point for species, size, and health</div>
       </div>
       <div class="map-shell">
         <div id="tree-map" class="live-map"></div>
-        <div class="map-loading" id="tree-map-loading">Loading 652,088 trees…</div>
+        <div class="map-loading" id="tree-map-loading">Loading 652,173 trees…</div>
       </div>
       <div class="map-legend-row">
         <span style="opacity:0.65;">Allergenic evidence:</span>
         <span class="lg-item"><span class="lg-dot" style="background:#a8402a;"></span>Priority</span>
-        <span class="lg-item"><span class="lg-dot" style="background:#c97a2b;"></span>Concern–high</span>
-        <span class="lg-item"><span class="lg-dot" style="background:#d9a552;"></span>Concern</span>
-        <span class="lg-item"><span class="lg-dot" style="background:#9aa79b;"></span>Uncertain</span>
+        <span class="lg-item"><span class="lg-dot" style="background:#c97a2b;"></span>Documented-concern</span>
+        <span class="lg-item"><span class="lg-dot" style="background:#9aa79b;"></span>Uncertain/minor</span>
         <span class="lg-item"><span class="lg-dot" style="background:#7c9a74;"></span>Low-concern</span>
       </div>
     </div>
-    <p class="map-caption">Zoom in to street level to see individual trees. Weight tiers are a demonstration mapping from species genus to wind- vs. insect-pollination status (see Methods) — not the source paper's unpublished per-species coefficient table.</p>
+    <p class="map-caption">Real per-tree data from the NYC 2015 Street Tree Census — species, trunk diameter, health, and location for all 652,173 living trees, downloaded once and shipped as static files (no API calls at runtime). Hover a point at street-level zoom to see that tree. Weight tiers are a transparent genus-level wind- vs. insect-pollination demonstration mapping (see Methods) — not the source paper's unpublished per-species coefficient table.</p>
   </div>
 
   <div class="section grid-2">
@@ -778,10 +777,14 @@ function initBoroughMap(){
   });
 }
 
-var TREE_COLORS = { 1:'#7c9a74', 2:'#9aa79b', 3:'#d9a552', 4:'#c97a2b', 5:'#a8402a' };
-var TREE_CIRCLE_COLOR = ['match', ['get', 'w'],
-  1, TREE_COLORS[1], 2, TREE_COLORS[2], 3, TREE_COLORS[3], 4, TREE_COLORS[4], 5, TREE_COLORS[5],
-  TREE_COLORS[2]
+// Tier matches the paper's 4-weight ATPI scheme (priority 1.00 / documented-concern 0.60 /
+// uncertain-minor 0.25 / low-concern 0.05); 0 = unclassified (no genus match / missing species).
+var TREE_COLORS = { 1:'#a8402a', 2:'#c97a2b', 3:'#9aa79b', 4:'#7c9a74', 0:'#c7c7c7' };
+var TREE_TIER_LABEL = { 1:'Priority', 2:'Documented-concern', 3:'Uncertain/minor', 4:'Low-concern', 0:'Unclassified' };
+var TREE_HEALTH_LABEL = { 3:'Good', 2:'Fair', 1:'Poor', 0:'Unknown' };
+var TREE_CIRCLE_COLOR = ['match', ['get', 'tier'],
+  1, TREE_COLORS[1], 2, TREE_COLORS[2], 3, TREE_COLORS[3], 4, TREE_COLORS[4],
+  TREE_COLORS[0]
 ];
 var TREE_CIRCLE_RADIUS = ['step', ['zoom'], 0.55, 11, 0.9, 13, 1.4, 15, 2.2, 17, 3.2];
 
@@ -792,38 +795,76 @@ function initTreeMap(){
   treeMap.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
 
   treeMap.on('load', function(){
-    fetch('data/trees.bin')
-      .then(r => r.arrayBuffer())
-      .then(buf => {
-        var stride = 10; // 2 float32 + 2 uint8
-        var n = Math.floor(buf.byteLength / stride);
-        var dv = new DataView(buf);
-        var features = new Array(n);
-        for(var i = 0; i < n; i++){
-          var o = i * stride;
-          features[i] = {
-            type: 'Feature',
-            geometry: { type: 'Point', coordinates: [dv.getFloat32(o + 4, true), dv.getFloat32(o, true)] },
-            properties: { w: dv.getUint8(o + 8) }
-          };
-        }
-        treeMap.addSource('trees', { type: 'geojson', data: { type: 'FeatureCollection', features: features }, buffer: 0 });
-        treeMap.addLayer({
-          id: 'trees-points', type: 'circle', source: 'trees',
-          paint: {
-            'circle-radius': TREE_CIRCLE_RADIUS,
-            'circle-color': TREE_CIRCLE_COLOR,
-            'circle-opacity': 0.85,
-            'circle-stroke-width': 0
+    Promise.all([
+      fetch('data/trees.bin').then(function(r){ return r.arrayBuffer(); }),
+      fetch('data/tree_species.json').then(function(r){ return r.json(); }),
+      fetch('data/tree_ntas.json').then(function(r){ return r.json(); }),
+      fetch('data/tree_boros.json').then(function(r){ return r.json(); }),
+      fetch('data/tree_addresses.txt').then(function(r){ return r.text(); })
+    ]).then(function(results){
+      var buf = results[0], species = results[1], ntas = results[2], boros = results[3];
+      var addresses = results[4].split('\n');
+
+      var stride = 14; // lat f32, lng f32, species_idx u16, dbh u8, health u8, nta_idx u8, boro u8
+      var n = Math.floor(buf.byteLength / stride);
+      var dv = new DataView(buf);
+      var features = new Array(n);
+      for(var i = 0; i < n; i++){
+        var o = i * stride;
+        var spIdx = dv.getUint16(o + 8, true);
+        features[i] = {
+          type: 'Feature',
+          geometry: { type: 'Point', coordinates: [dv.getFloat32(o + 4, true), dv.getFloat32(o, true)] },
+          properties: {
+            sp: spIdx,
+            tier: species[spIdx] ? species[spIdx].tier : 0,
+            dbh: dv.getUint8(o + 10),
+            health: dv.getUint8(o + 11),
+            nta: dv.getUint8(o + 12),
+            boro: dv.getUint8(o + 13),
+            addr: addresses[i] || ''
           }
-        });
-        var el = document.getElementById('tree-map-loading');
-        if(el) el.remove();
-      })
-      .catch(err => {
-        var el = document.getElementById('tree-map-loading');
-        if(el) el.textContent = 'Could not load tree data (' + err.message + ')';
+        };
+      }
+      treeMap.addSource('trees', { type: 'geojson', data: { type: 'FeatureCollection', features: features }, buffer: 0 });
+      treeMap.addLayer({
+        id: 'trees-points', type: 'circle', source: 'trees',
+        paint: {
+          'circle-radius': TREE_CIRCLE_RADIUS,
+          'circle-color': TREE_CIRCLE_COLOR,
+          'circle-opacity': 0.85,
+          'circle-stroke-width': 0
+        }
       });
+
+      var popup = new maplibregl.Popup({ closeButton: false, closeOnClick: false, className: 'tract-popup', maxWidth: '260px' });
+      treeMap.on('mousemove', 'trees-points', function(e){
+        if(!e.features.length) return;
+        treeMap.getCanvas().style.cursor = 'pointer';
+        var p = e.features[0].properties;
+        var sp = species[p.sp] || { common: 'Unknown species', latin: '' };
+        var tierColor = TREE_COLORS[p.tier] || TREE_COLORS[0];
+        popup.setLngLat(e.lngLat).setHTML(
+          '<div class="tract-tooltip">' +
+          '<b style="text-transform:capitalize;">' + sp.common + '</b>' + (sp.latin ? ' <i style="opacity:.65;">(' + sp.latin + ')</i>' : '') +
+          '<br/><span style="color:' + tierColor + '; font-weight:700;">' + TREE_TIER_LABEL[p.tier] + '</span> allergenic evidence' +
+          '<br/>Trunk diameter: ' + p.dbh + ' in &middot; Health: ' + TREE_HEALTH_LABEL[p.health] +
+          '<br/>' + (boros[p.boro] || '') + (ntas[p.nta] ? ' &middot; ' + ntas[p.nta] : '') +
+          (p.addr ? '<br/><span style="opacity:.6;">' + p.addr + '</span>' : '') +
+          '</div>'
+        ).addTo(treeMap);
+      });
+      treeMap.on('mouseleave', 'trees-points', function(){
+        treeMap.getCanvas().style.cursor = '';
+        popup.remove();
+      });
+
+      var el = document.getElementById('tree-map-loading');
+      if(el) el.remove();
+    }).catch(function(err){
+      var el = document.getElementById('tree-map-loading');
+      if(el) el.textContent = 'Could not load tree data (' + err.message + ')';
+    });
   });
 }
 
