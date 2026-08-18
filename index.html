@@ -659,6 +659,9 @@ document.getElementById('tabs').addEventListener('click', function(e){
 // Grayscale MapLibre vector basemap (CARTO Positron / Dark Matter), matched to the page's own light/dark theme.
 var atpiMap = null, treeMap = null, boroughMap = null, atpiMapInited = false, treeMapInited = false, boroughMapInited = false;
 var NYC_CENTER = [-73.95, 40.7128], NYC_ZOOM = 10; // MapLibre uses [lng, lat]
+// Cache-buster for the static /data files — bump this string whenever their format/content changes,
+// since GitHub Pages caches them (max-age=600) and browsers often hold on even longer.
+var DATA_V = 'v3';
 var MAP_STYLE = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
   ? 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json'
   : 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json';
@@ -682,7 +685,7 @@ function initAtpiMap(){
   atpiMap.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
 
   atpiMap.on('load', function(){
-    fetch('data/tracts_atpi.geojson')
+    fetch('data/tracts_atpi.geojson?v=' + DATA_V)
       .then(r => r.json())
       .then(geo => {
         atpiMap.addSource('tracts', { type: 'geojson', data: geo, promoteId: 'geoid' });
@@ -759,7 +762,7 @@ function initBoroughMap(){
   });
 
   boroughMap.on('load', function(){
-    fetch('data/tracts_atpi.geojson')
+    fetch('data/tracts_atpi.geojson?v=' + DATA_V)
       .then(r => r.json())
       .then(geo => {
         boroughMap.addSource('boroughs', { type: 'geojson', data: geo });
@@ -796,11 +799,11 @@ function initTreeMap(){
 
   treeMap.on('load', function(){
     Promise.all([
-      fetch('data/trees.bin').then(function(r){ return r.arrayBuffer(); }),
-      fetch('data/tree_species.json').then(function(r){ return r.json(); }),
-      fetch('data/tree_ntas.json').then(function(r){ return r.json(); }),
-      fetch('data/tree_boros.json').then(function(r){ return r.json(); }),
-      fetch('data/tree_addresses.txt').then(function(r){ return r.text(); })
+      fetch('data/trees.bin?v=' + DATA_V).then(function(r){ return r.arrayBuffer(); }),
+      fetch('data/tree_species.json?v=' + DATA_V).then(function(r){ return r.json(); }),
+      fetch('data/tree_ntas.json?v=' + DATA_V).then(function(r){ return r.json(); }),
+      fetch('data/tree_boros.json?v=' + DATA_V).then(function(r){ return r.json(); }),
+      fetch('data/tree_addresses.txt?v=' + DATA_V).then(function(r){ return r.text(); })
     ]).then(function(results){
       var buf = results[0], species = results[1], ntas = results[2], boros = results[3];
       var addresses = results[4].split('\n');
@@ -904,7 +907,7 @@ document.getElementById('stabs').addEventListener('click', function(e){
     return ticks;
   }
 
-  fetch('data/quadrant_points.json')
+  fetch('data/quadrant_points.json?v=' + DATA_V)
     .then(function(r){ return r.json(); })
     .then(function(data){
       var pts = data.tracts.map(function(t){ return [t.child_share, logAtpi(t.atpi)]; });
@@ -1078,7 +1081,7 @@ document.getElementById('stabs').addEventListener('click', function(e){
     return ticks;
   }
 
-  fetch('data/quadrant_points.json')
+  fetch('data/quadrant_points.json?v=' + DATA_V)
     .then(function(r){ return r.json(); })
     .then(function(data){
       var tracts = data.tracts;
