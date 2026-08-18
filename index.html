@@ -87,14 +87,18 @@ header{
 nav{display:flex; gap:4px; flex-wrap:wrap;}
 nav button{
   appearance:none; border:1px solid transparent; background:transparent;
-  color:var(--ink); opacity:0.62;
+  color:var(--ink); opacity:0.62; position:relative;
   font-size:13.5px; font-weight:600; letter-spacing:0.01em;
-  padding:7px 13px; border-radius:8px; cursor:pointer;
+  padding:7px 13px 9px; border-radius:8px; cursor:pointer;
   font-family:inherit;
   transition:opacity .15s ease, background .15s ease;
 }
 nav button:hover{opacity:0.9; background:var(--accentSoft);}
-nav button.active{opacity:1; background:var(--accentSoft); border-color:var(--border); color:var(--moss);}
+nav button.active{opacity:1; background:var(--accentSoft); border-color:var(--border); color:var(--moss); font-weight:700;}
+nav button.active::after{
+  content:''; position:absolute; left:13px; right:13px; bottom:1px; height:2.5px; border-radius:2px;
+  background:linear-gradient(90deg, var(--moss), var(--pollen));
+}
 nav button:focus-visible{outline:2px solid var(--moss); outline-offset:2px;}
 
 main{max-width:1080px; margin:0 auto; padding:0 24px 90px;}
@@ -118,32 +122,48 @@ p{margin:0 0 14px;}
 
 /* ---------- Hero ---------- */
 .hero{padding:52px 0 8px; border-bottom:1px solid var(--border);}
-.hero-grid{display:grid; grid-template-columns:1.3fr 1fr; gap:40px; align-items:end;}
+.hero-grid{display:grid; grid-template-columns:1.15fr 1fr; gap:40px; align-items:stretch;}
 @media (max-width:760px){ .hero-grid{grid-template-columns:1fr;} }
 .central-narrative{
-  background:var(--card); border:1px solid var(--border); border-radius:14px;
-  padding:20px 22px; font-size:14.5px; color:var(--ink); opacity:0.92;
+  background:var(--card); border:1px solid var(--border); border-radius:14px; box-shadow:var(--shadow-md);
+  padding:20px 22px; font-size:15px; color:var(--ink); opacity:0.92;
+  display:flex; align-items:center;
 }
+.central-narrative > div{max-width:100%;}
 .central-narrative b{color:var(--moss);}
 
-.stat-strip{display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--border); border:1px solid var(--border); border-radius:12px; overflow:hidden; margin:34px 0;}
-.stat{background:var(--card); padding:18px 16px;}
-.stat .num{font-family:Georgia,serif; font-size:26px; color:var(--moss); font-variant-numeric:tabular-nums;}
+.hero-map-frame{display:flex; flex-direction:column; gap:8px;}
+.hero-map-frame .map-shell{
+  height:260px; border-radius:14px; overflow:hidden; border:1px solid var(--border); box-shadow:var(--shadow-md);
+}
+.hero-map-caption{font-size:12px; opacity:0.65; text-align:right;}
+.hero-map-caption a{color:var(--moss); font-weight:600; text-decoration:none;}
+.hero-map-caption a:hover{text-decoration:underline;}
+
+.stat-strip{display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--border); border:1px solid var(--border); border-radius:12px; overflow:hidden; margin:28px 0 0; box-shadow:var(--shadow-md);}
+.stat{background:var(--card); padding:22px 18px;}
+.stat .num{font-family:Georgia,serif; font-size:clamp(26px,3.4vw,40px); color:var(--moss); font-variant-numeric:tabular-nums; line-height:1.05;}
 .stat .num.amber{color:var(--pollen);}
 .stat .num.clay{color:var(--clay);}
-.stat .label{font-size:12px; opacity:0.65; margin-top:3px;}
+.stat .label{font-size:12.5px; opacity:0.65; margin-top:5px;}
 @media (max-width:760px){ .stat-strip{grid-template-columns:repeat(2,1fr);} }
 
 /* ---------- Cards / generic ---------- */
-.card{background:var(--card); border:1px solid var(--border); border-radius:14px; padding:22px 24px;}
+.card{background:var(--card); border:1px solid var(--border); border-radius:14px; padding:22px 24px; box-shadow:var(--shadow-sm); transition:box-shadow .18s ease, transform .18s ease;}
+.card:hover{box-shadow:var(--shadow-md-hover); transform:translateY(-2px);}
 .grid-2{display:grid; grid-template-columns:1fr 1fr; gap:20px;}
 @media (max-width:760px){ .grid-2{grid-template-columns:1fr;} }
 
 .rq-list{list-style:none; margin:0; padding:0; display:grid; gap:10px;}
 .rq-list li{
-  background:var(--card); border:1px solid var(--border); border-radius:10px;
+  background:var(--card); border:1px solid var(--border); border-radius:10px; box-shadow:var(--shadow-sm);
   padding:13px 16px; font-size:14.5px; display:flex; gap:12px;
+  transition:box-shadow .18s ease, transform .18s ease;
 }
+.rq-list li:hover{box-shadow:var(--shadow-md); transform:translateY(-1px);}
+.rq-list-compact{grid-template-columns:repeat(3,1fr); gap:10px;}
+.rq-list-compact li{font-size:13px; padding:11px 13px;}
+@media (max-width:820px){ .rq-list-compact{grid-template-columns:1fr;} }
 .rq-tag{font-family:Georgia,serif; color:var(--pollen); font-weight:700; flex:none;}
 
 .pill{display:inline-flex; align-items:center; gap:6px; font-size:11.5px; font-weight:700; letter-spacing:0.03em; text-transform:uppercase; padding:4px 10px; border-radius:999px;}
@@ -295,23 +315,33 @@ th{font-size:11.5px; text-transform:uppercase; letter-spacing:0.05em; opacity:0.
     <h1>Can a green city really make children healthier?</h1>
     <p class="lede">A four-quadrant analysis of the spatial distribution of children and street-tree pollen potential in New York City.</p>
 
-    <div class="hero-grid" style="margin-top:30px;">
-      <div class="central-narrative">
-        Cities need trees — but a healthy green city cannot simply pursue <b>"more trees."</b> It must also ask which species are planted, where they are planted, and whether different communities have the capacity to respond to potential pollen impacts. This study does not oppose urban greening. It moves the conversation from <i>planting more</i> to planting, managing, and funding trees <b>more scientifically and equitably.</b>
-      </div>
-      <ul class="rq-list">
-        <li><span class="rq-tag">RQ1</span> What is the spatial distribution of street-tree pollen potential in NYC?</li>
-        <li><span class="rq-tag">RQ2</span> Is that potential spatially associated with the share of residents under 18?</li>
-        <li><span class="rq-tag">RQ3</span> How can a four-quadrant framework prioritize greening, monitoring, education, and health resources?</li>
-      </ul>
-    </div>
-
     <div class="stat-strip">
       <div class="stat"><div class="num">652,168</div><div class="label">living street trees citywide</div></div>
       <div class="stat"><div class="num amber">132</div><div class="label">recorded species</div></div>
       <div class="stat"><div class="num">r = 0.159</div><div class="label">child share ↔ ATPI correlation</div></div>
       <div class="stat"><div class="num clay">556</div><div class="label">tracts: high child share &amp; high ATPI</div></div>
     </div>
+
+    <div class="hero-grid" style="margin-top:30px;">
+      <div class="central-narrative"><div>
+        A healthy green city can't just pursue <b>"more trees."</b> It has to ask which species, where, and whether every community can respond to the pollen those trees produce — moving the conversation from <i>planting more</i> to planting, managing, and funding trees <b>more scientifically and equitably.</b>
+      </div></div>
+      <div class="hero-map-frame">
+        <div class="map-shell">
+          <div id="hero-map" class="live-map" style="height:100%; min-height:0;"></div>
+          <div class="map-loading" id="hero-map-loading">Loading live preview…</div>
+        </div>
+        <div class="hero-map-caption">ATPI by census tract, live · <a href="#" data-jump="atpi">open full map →</a></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" style="margin-top:34px;">
+    <ul class="rq-list rq-list-compact">
+      <li><span class="rq-tag">RQ1</span> What is the spatial distribution of street-tree pollen potential in NYC?</li>
+      <li><span class="rq-tag">RQ2</span> Is that potential spatially associated with the share of residents under 18?</li>
+      <li><span class="rq-tag">RQ3</span> How can a four-quadrant framework prioritize greening, monitoring, education, and health resources?</li>
+    </ul>
   </div>
 
   <div class="section">
@@ -358,11 +388,11 @@ th{font-size:11.5px; text-transform:uppercase; letter-spacing:0.05em; opacity:0.
       </div>
       <div class="map-legend-row">
         <span style="opacity:0.65;">ATPI percentile, citywide:</span>
-        <span class="lg-item"><span class="lg-swatch" style="background:#e7e9df;"></span>0–20</span>
-        <span class="lg-item"><span class="lg-swatch" style="background:#c9d3bd;"></span>20–40</span>
-        <span class="lg-item"><span class="lg-swatch" style="background:#e6c37f;"></span>40–60</span>
-        <span class="lg-item"><span class="lg-swatch" style="background:#d98a3d;"></span>60–80</span>
-        <span class="lg-item"><span class="lg-swatch" style="background:#a8402a;"></span>80–100</span>
+        <span class="lg-item"><span class="lg-swatch" style="background:#1a9850;"></span>0–20</span>
+        <span class="lg-item"><span class="lg-swatch" style="background:#91cf60;"></span>20–40</span>
+        <span class="lg-item"><span class="lg-swatch" style="background:#fee08b;"></span>40–60</span>
+        <span class="lg-item"><span class="lg-swatch" style="background:#fc8d59;"></span>60–80</span>
+        <span class="lg-item"><span class="lg-swatch" style="background:#d73027;"></span>80–100</span>
       </div>
     </div>
     <p class="map-caption">Computed from all 652,088 geolocated living street trees (of 652,173 total), spatially joined to 2020 Census Tract boundaries. ATPI = Σ per-tree potential ÷ tract land area. Click any tract for its exact value. This is a potential-pollen-source indicator, not measured pollen or health data.</p>
@@ -375,9 +405,9 @@ th{font-size:11.5px; text-transform:uppercase; letter-spacing:0.05em; opacity:0.
         <div class="map-loading" id="borough-map-loading">Loading borough outlines…</div>
       </div>
       <div class="legend">
-        <div class="legend-swatch" style="background:var(--clay); opacity:0.6;"></div> Higher relative ATPI
-        <div class="legend-swatch" style="background:var(--pollen); opacity:0.45; margin-left:10px;"></div> Moderate
-        <div class="legend-swatch" style="background:var(--mist); margin-left:10px;"></div> Lower
+        <div class="legend-swatch" style="background:#d73027;"></div> Higher relative ATPI
+        <div class="legend-swatch" style="background:#fc8d59; margin-left:10px;"></div> Moderate
+        <div class="legend-swatch" style="background:#91cf60; margin-left:10px;"></div> Lower
       </div>
       <p class="map-caption">Borough-level rendering on a real basemap, giving a sense of scale — each borough is shaded by the paper's reported pattern rather than individual tract values (see the full tract choropleth above). Many high-ATPI tracts cluster in Brooklyn and Queens, likely reflecting large mature trees, historical planting, and the built environment. Static/non-interactive by design.</p>
     </div>
@@ -467,6 +497,25 @@ th{font-size:11.5px; text-transform:uppercase; letter-spacing:0.05em; opacity:0.
   <p class="lede" style="margin-top:6px;">Citywide medians split every tract into one of four categories — a policy-screening tool, not a disease diagnosis.</p>
 
   <div class="section">
+    <h3 style="margin-bottom:2px;">Every tract, plotted</h3>
+    <div style="font-size:13px; opacity:0.6; margin-bottom:14px;">Hover any point for that tract's real numbers</div>
+    <div class="card">
+      <div class="map-legend-row" style="padding:0 0 14px; font-size:13px; font-weight:600;">
+        <span class="lg-item"><svg width="12" height="12" viewBox="0 0 12 12"><circle cx="6" cy="6" r="5" fill="var(--clay)"/></svg><span style="color:var(--clay);">High ATPI · High child share</span></span>
+        <span class="lg-item"><svg width="12" height="12" viewBox="0 0 12 12"><polygon points="6,1 11,10 1,10" fill="var(--pollen)"/></svg><span style="color:var(--pollen);">High ATPI · Low child share</span></span>
+        <span class="lg-item"><svg width="12" height="12" viewBox="0 0 12 12"><rect x="1.5" y="1.5" width="9" height="9" fill="var(--moss)"/></svg><span style="color:var(--moss);">Low ATPI · High child share</span></span>
+        <span class="lg-item"><svg width="12" height="12" viewBox="0 0 12 12"><polygon points="6,1 11,6 6,11 1,6" fill="var(--slate)"/></svg><span style="color:var(--slate);">Low ATPI · Low child share</span></span>
+      </div>
+      <div class="map-shell">
+        <svg id="quad-scatter" viewBox="0 0 720 460" style="width:100%; height:auto; display:block;" role="img" aria-label="Scatter plot of census tracts by ATPI percentile and child-share percentile, colored by quadrant"></svg>
+        <div class="chart-tooltip" id="quad-scatter-tip"></div>
+      </div>
+    </div>
+    <p class="map-caption" id="quad-scatter-caption">Loading real tract-level data…</p>
+  </div>
+
+  <div class="section">
+    <h3 style="margin-bottom:14px;">Quadrant breakdown</h3>
     <div class="quad-matrix">
       <div class="quad-cell lh">
         <div><div class="quad-title">Low ATPI · High Child Share (LH)</div></div>
@@ -516,24 +565,6 @@ th{font-size:11.5px; text-transform:uppercase; letter-spacing:0.05em; opacity:0.
     <div style="display:flex; justify-content:space-between; font-size:11px; opacity:0.55; text-transform:uppercase; letter-spacing:0.06em; padding:0 4px;">
       <span>← Low ATPI</span><span>High ATPI →</span>
     </div>
-  </div>
-
-  <div class="section">
-    <h3 style="margin-bottom:2px;">Every tract, plotted</h3>
-    <div style="font-size:13px; opacity:0.6; margin-bottom:14px;">Hover any point for that tract's real numbers</div>
-    <div class="card">
-      <div class="map-legend-row" style="padding:0 0 14px; font-size:13px; font-weight:600;">
-        <span class="lg-item"><svg width="12" height="12" viewBox="0 0 12 12"><circle cx="6" cy="6" r="5" fill="var(--clay)"/></svg><span style="color:var(--clay);">High ATPI · High child share</span></span>
-        <span class="lg-item"><svg width="12" height="12" viewBox="0 0 12 12"><polygon points="6,1 11,10 1,10" fill="var(--pollen)"/></svg><span style="color:var(--pollen);">High ATPI · Low child share</span></span>
-        <span class="lg-item"><svg width="12" height="12" viewBox="0 0 12 12"><rect x="1.5" y="1.5" width="9" height="9" fill="var(--moss)"/></svg><span style="color:var(--moss);">Low ATPI · High child share</span></span>
-        <span class="lg-item"><svg width="12" height="12" viewBox="0 0 12 12"><polygon points="6,1 11,6 6,11 1,6" fill="var(--slate)"/></svg><span style="color:var(--slate);">Low ATPI · Low child share</span></span>
-      </div>
-      <div class="map-shell">
-        <svg id="quad-scatter" viewBox="0 0 720 460" style="width:100%; height:auto; display:block;" role="img" aria-label="Scatter plot of census tracts by ATPI percentile and child-share percentile, colored by quadrant"></svg>
-        <div class="chart-tooltip" id="quad-scatter-tip"></div>
-      </div>
-    </div>
-    <p class="map-caption" id="quad-scatter-caption">Loading real tract-level data…</p>
   </div>
 
   <div class="section">
@@ -640,20 +671,34 @@ th{font-size:11.5px; text-transform:uppercase; letter-spacing:0.05em; opacity:0.
 <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 <script>
 // tab navigation
-document.getElementById('tabs').addEventListener('click', function(e){
-  var btn = e.target.closest('button');
-  if(!btn) return;
+function goToPage(pageName){
+  var navBtn = document.querySelector('#tabs button[data-page="' + pageName + '"]');
+  if(!navBtn) return;
   document.querySelectorAll('#tabs button').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
+  navBtn.classList.add('active');
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.getElementById(btn.dataset.page).classList.add('active');
+  document.getElementById(pageName).classList.add('active');
   window.scrollTo({top:0, behavior:'instant'});
-  if(btn.dataset.page === 'atpi'){
+  if(pageName === 'atpi'){
     initAtpiMap(); setTimeout(()=>{ if(atpiMap) atpiMap.resize(); }, 60);
     initBoroughMap(); setTimeout(()=>{ if(boroughMap) boroughMap.resize(); }, 60);
   }
-  if(btn.dataset.page === 'trees'){ initTreeMap(); setTimeout(()=>{ if(treeMap) treeMap.resize(); }, 60); }
+  if(pageName === 'trees'){ initTreeMap(); setTimeout(()=>{ if(treeMap) treeMap.resize(); }, 60); }
+}
+document.getElementById('tabs').addEventListener('click', function(e){
+  var btn = e.target.closest('button');
+  if(!btn) return;
+  goToPage(btn.dataset.page);
 });
+document.addEventListener('click', function(e){
+  var jump = e.target.closest('[data-jump]');
+  if(!jump) return;
+  e.preventDefault();
+  goToPage(jump.dataset.jump);
+});
+// defer to the next paint so the hero-map container has flushed layout (MapLibre needs real
+// dimensions at construction time, or it throws "failed to invert matrix" on a 0x0 canvas)
+requestAnimationFrame(function(){ requestAnimationFrame(initHeroMap); });
 
 // ---------------- Live maps: ATPI choropleth + all-tree point map ----------------
 // Grayscale MapLibre vector basemap (CARTO Positron / Dark Matter), matched to the page's own light/dark theme.
@@ -666,15 +711,18 @@ var MAP_STYLE = (window.matchMedia && window.matchMedia('(prefers-color-scheme: 
   ? 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json'
   : 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json';
 
+// Vivid green -> yellow -> orange -> red allergenic-potential ramp (ColorBrewer RdYlGn, reversed),
+// used consistently across every ATPI map/legend on the site — replaces the old washed-out low end.
+var ATPI_RAMP = ['#1a9850', '#91cf60', '#fee08b', '#fc8d59', '#d73027'];
 var ATPI_FILL_COLOR = [
   'case',
   ['==', ['get', 'atpi_pctile'], null], '#cccccc',
   ['step', ['get', 'atpi_pctile'],
-    '#e7e9df',
-    20, '#c9d3bd',
-    40, '#e6c37f',
-    60, '#d98a3d',
-    80, '#a8402a'
+    ATPI_RAMP[0],
+    20, ATPI_RAMP[1],
+    40, ATPI_RAMP[2],
+    60, ATPI_RAMP[3],
+    80, ATPI_RAMP[4]
   ]
 ];
 
@@ -691,7 +739,7 @@ function initAtpiMap(){
         atpiMap.addSource('tracts', { type: 'geojson', data: geo, promoteId: 'geoid' });
         atpiMap.addLayer({
           id: 'tracts-fill', type: 'fill', source: 'tracts',
-          paint: { 'fill-color': ATPI_FILL_COLOR, 'fill-opacity': 0.72 }
+          paint: { 'fill-color': ATPI_FILL_COLOR, 'fill-opacity': 0.82 }
         });
         atpiMap.addLayer({
           id: 'tracts-line', type: 'line', source: 'tracts',
@@ -738,20 +786,20 @@ function initAtpiMap(){
 // Small non-interactive borough-level view: real basemap + real tract geometry,
 // shaded per-borough (not per-tract) purely to give a sense of scale next to the schematic legend.
 var BOROUGH_FILL_COLOR = ['match', ['get', 'boroname'],
-  'Brooklyn', '#a8402a',
-  'Queens', '#a8402a',
-  'Manhattan', '#c97a2b',
-  'Bronx', '#c97a2b',
-  'Staten Island', '#dbe0d6',
+  'Brooklyn', '#d73027',
+  'Queens', '#d73027',
+  'Manhattan', '#fc8d59',
+  'Bronx', '#fc8d59',
+  'Staten Island', '#91cf60',
   '#cccccc'
 ];
 var BOROUGH_FILL_OPACITY = ['match', ['get', 'boroname'],
-  'Brooklyn', 0.55,
-  'Queens', 0.65,
-  'Manhattan', 0.5,
-  'Bronx', 0.4,
-  'Staten Island', 0.5,
-  0.5
+  'Brooklyn', 0.8,
+  'Queens', 0.85,
+  'Manhattan', 0.75,
+  'Bronx', 0.65,
+  'Staten Island', 0.7,
+  0.7
 ];
 
 function initBoroughMap(){
@@ -776,6 +824,36 @@ function initBoroughMap(){
       .catch(err => {
         var el = document.getElementById('borough-map-loading');
         if(el) el.textContent = 'Could not load borough data (' + err.message + ')';
+      });
+  });
+}
+
+// Small live, non-interactive preview map in the hero — real ATPI choropleth, same vivid ramp as the
+// full map, so the very first thing a visitor sees is colorful and real, not another paragraph.
+var heroMap = null, heroMapInited = false;
+function initHeroMap(){
+  if(heroMapInited) return;
+  heroMapInited = true;
+  // fixed center/zoom, cropped in tight on the dense Manhattan/Brooklyn/Queens core so the whole
+  // frame reads as color (fitBounds-to-all-5-boroughs left too much empty basemap on this wide box)
+  heroMap = new maplibregl.Map({
+    container: 'hero-map', style: MAP_STYLE, center: [-73.92, 40.72], zoom: 10.6, interactive: false, attributionControl: false
+  });
+  heroMap.on('load', function(){
+    fetch('data/tracts_atpi.geojson?v=' + DATA_V)
+      .then(r => r.json())
+      .then(geo => {
+        heroMap.addSource('hero-tracts', { type: 'geojson', data: geo });
+        heroMap.addLayer({
+          id: 'hero-tracts-fill', type: 'fill', source: 'hero-tracts',
+          paint: { 'fill-color': ATPI_FILL_COLOR, 'fill-opacity': 0.85 }
+        });
+        var el = document.getElementById('hero-map-loading');
+        if(el) el.remove();
+      })
+      .catch(function(err){
+        var el = document.getElementById('hero-map-loading');
+        if(el) el.textContent = 'Could not load preview (' + err.message + ')';
       });
   });
 }
